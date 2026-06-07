@@ -18,6 +18,8 @@ CONFIG: dict[str, tuple] = {
     ),
     "CELERY_BROKER_URL": (str, "", "", True, "@see https://docs.celeryq.dev/en/stable/userguide/configuration.html"),
     "CELERY_TASK_ALWAYS_EAGER": (bool, False, True, False, ""),
+    "HOPE_CORE_BASE_URL": (str, "", "", True, "Base URL for hope-core API"),
+    "HOPE_CORE_API_TOKEN": (str, "", "", True, "API token for hope-core authentication"),
     "DATABASE_URL": (
         str,
         SmartEnv.NOTSET,

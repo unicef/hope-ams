@@ -1,65 +1,89 @@
 {% extends "admin/base.html" %}
-{% block content %}
-<div style="padding: 20px;">
-    <h1>Anomalies</h1>
-    <form method="get" style="margin: 20px 0;">
-        <label>Phase:
-            <select name="phase">
-                <option value="">All</option>
-                <option value="prevention">Prevention</option>
-                <option value="detection">Detection</option>
-            </select>
-        </label>
-        <label>Severity:
-            <select name="severity">
-                <option value="">All</option>
-                <option value="critical">Critical</option>
-                <option value="high">High</option>
-                <option value="medium">Medium</option>
-                <option value="low">Low</option>
-            </select>
-        </label>
-        <label>Status:
-            <select name="status">
-                <option value="">All</option>
-                <option value="open">Open</option>
-                <option value="reviewing">Reviewing</option>
-                <option value="dismissed">Dismissed</option>
-                <option value="confirmed">Confirmed</option>
-            </select>
-        </label>
-        <button type="submit">Filter</button>
-    </form>
+{% load i18n unfold %}
 
-    <table style="width: 100%; border-collapse: collapse;">
-        <tr>
-            <th style="text-align: left; padding: 8px; border-bottom: 2px solid #ccc;">Severity</th>
-            <th style="text-align: left; padding: 8px; border-bottom: 2px solid #ccc;">Status</th>
-            <th style="text-align: left; padding: 8px; border-bottom: 2px solid #ccc;">Rule</th>
-            <th style="text-align: left; padding: 8px; border-bottom: 2px solid #ccc;">Title</th>
-            <th style="text-align: left; padding: 8px; border-bottom: 2px solid #ccc;">Object</th>
-            <th style="text-align: left; padding: 8px; border-bottom: 2px solid #ccc;">Phase</th>
-            <th style="text-align: left; padding: 8px; border-bottom: 2px solid #ccc;">Created</th>
-        </tr>
-        {% for anomaly in anomalies %}
-        <tr>
-            <td style="padding: 8px; border-bottom: 1px solid #eee;">
-                <span style="color: {% if anomaly.severity == 'critical' %}red{% elif anomaly.severity == 'high' %}orange{% elif anomaly.severity == 'medium' %}gold{% else %}gray{% endif %};">
-                    {{ anomaly.severity|upper }}
-                </span>
-            </td>
-            <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ anomaly.status }}</td>
-            <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ anomaly.rule_name }}</td>
-            <td style="padding: 8px; border-bottom: 1px solid #eee;">
-                <a href="{% url 'admin:detections_anomalyresult_change' anomaly.id %}">{{ anomaly.title|truncatechars:50 }}</a>
-            </td>
-            <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ anomaly.object_unicef_id|default:anomaly.object_type }}</td>
-            <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ anomaly.phase }}</td>
-            <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ anomaly.created_at|date:"Y-m-d H:i" }}</td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="7" style="padding: 8px;">No anomalies found.</td></tr>
-        {% endfor %}
-    </table>
+{% block content %}
+<div class="flex flex-col gap-8">
+    <div>
+        {% component "unfold/components/card.html" with title="Anomalies" %}
+            <form method="get" class="flex flex-wrap gap-4 mb-6">
+                <label class="flex items-center gap-2 text-sm font-medium text-font-important-light dark:text-font-important-dark">
+                    Phase:
+                    <select name="phase" class="bg-white border border-base-200 rounded-default px-3 py-1.5 text-sm dark:bg-base-900 dark:border-base-800">
+                        <option value="">All</option>
+                        <option value="prevention">Prevention</option>
+                        <option value="detection">Detection</option>
+                    </select>
+                </label>
+                <label class="flex items-center gap-2 text-sm font-medium text-font-important-light dark:text-font-important-dark">
+                    Severity:
+                    <select name="severity" class="bg-white border border-base-200 rounded-default px-3 py-1.5 text-sm dark:bg-base-900 dark:border-base-800">
+                        <option value="">All</option>
+                        <option value="critical">Critical</option>
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                    </select>
+                </label>
+                <label class="flex items-center gap-2 text-sm font-medium text-font-important-light dark:text-font-important-dark">
+                    Status:
+                    <select name="status" class="bg-white border border-base-200 rounded-default px-3 py-1.5 text-sm dark:bg-base-900 dark:border-base-800">
+                        <option value="">All</option>
+                        <option value="open">Open</option>
+                        <option value="reviewing">Reviewing</option>
+                        <option value="dismissed">Dismissed</option>
+                        <option value="confirmed">Confirmed</option>
+                    </select>
+                </label>
+                <button type="submit" class="bg-primary-600 hover:bg-primary-700 text-white font-medium px-4 py-1.5 rounded-default text-sm transition-all">
+                    Filter
+                </button>
+            </form>
+
+            <table class="min-w-full">
+                <thead>
+                    <tr class="bg-base-50 dark:bg-base-900">
+                        <th class="px-4 py-2 text-left font-semibold text-sm text-font-important-light dark:text-font-important-dark">Severity</th>
+                        <th class="px-4 py-2 text-left font-semibold text-sm text-font-important-light dark:text-font-important-dark">Status</th>
+                        <th class="px-4 py-2 text-left font-semibold text-sm text-font-important-light dark:text-font-important-dark">Rule</th>
+                        <th class="px-4 py-2 text-left font-semibold text-sm text-font-important-light dark:text-font-important-dark">Title</th>
+                        <th class="px-4 py-2 text-left font-semibold text-sm text-font-important-light dark:text-font-important-dark">Object</th>
+                        <th class="px-4 py-2 text-left font-semibold text-sm text-font-important-light dark:text-font-important-dark">Phase</th>
+                        <th class="px-4 py-2 text-left font-semibold text-sm text-font-important-light dark:text-font-important-dark">Created</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for anomaly in anomalies %}
+                    <tr class="border-t border-base-200 dark:border-base-800 hover:bg-base-50 dark:hover:bg-base-900 transition-colors">
+                        <td class="px-4 py-2 text-sm">
+                            {% if anomaly.severity == 'critical' %}
+                                {% component "unfold/helpers/label.html" with type="danger" text=anomaly.severity|upper %}{% endcomponent %}
+                            {% elif anomaly.severity == 'high' %}
+                                {% component "unfold/helpers/label.html" with type="warning" text=anomaly.severity|upper %}{% endcomponent %}
+                            {% elif anomaly.severity == 'medium' %}
+                                {% component "unfold/helpers/label.html" with type="primary" text=anomaly.severity|upper %}{% endcomponent %}
+                            {% else %}
+                                {% component "unfold/helpers/label.html" with text=anomaly.severity|upper %}{% endcomponent %}
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-2 text-sm">{{ anomaly.status }}</td>
+                        <td class="px-4 py-2 text-sm font-mono text-xs">{{ anomaly.rule_name }}</td>
+                        <td class="px-4 py-2 text-sm">
+                            <a href="{% url 'admin:detections_anomalyresult_change' anomaly.id %}" class="text-primary-600 hover:text-primary-700 underline">
+                                {{ anomaly.title|truncatechars:50 }}
+                            </a>
+                        </td>
+                        <td class="px-4 py-2 text-sm">{{ anomaly.object_unicef_id|default:anomaly.object_type }}</td>
+                        <td class="px-4 py-2 text-sm">{{ anomaly.phase }}</td>
+                        <td class="px-4 py-2 text-sm whitespace-nowrap">{{ anomaly.created_at|date:"Y-m-d H:i" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="px-4 py-8 text-center text-sm text-font-subtle-light dark:text-font-subtle-dark">No anomalies found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endcomponent %}
+    </div>
 </div>
 {% endblock %}

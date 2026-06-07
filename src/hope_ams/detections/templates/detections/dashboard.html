@@ -1,56 +1,78 @@
 {% extends "admin/base.html" %}
+{% load i18n unfold %}
+
 {% block content %}
-<div style="padding: 20px;">
-    <h1>AMS Dashboard</h1>
-    <div style="display: flex; gap: 20px; margin: 20px 0;">
-        <div style="border: 1px solid #ccc; padding: 20px; border-radius: 8px; min-width: 150px;">
-            <h3>Total Runs</h3>
-            <p style="font-size: 2em;">{{ total_runs }}</p>
-        </div>
-        <div style="border: 1px solid #ccc; padding: 20px; border-radius: 8px; min-width: 150px;">
-            <h3>Total Anomalies</h3>
-            <p style="font-size: 2em;">{{ total_anomalies }}</p>
-        </div>
-        <div style="border: 1px solid #ccc; padding: 20px; border-radius: 8px; min-width: 150px;">
-            <h3>Prevention</h3>
-            <p style="font-size: 2em;">{{ by_phase.prevention|default:"0" }}</p>
-        </div>
-        <div style="border: 1px solid #ccc; padding: 20px; border-radius: 8px; min-width: 150px;">
-            <h3>Detection</h3>
-            <p style="font-size: 2em;">{{ by_phase.detection|default:"0" }}</p>
+<div class="flex flex-col gap-8">
+    <div>
+        <div class="grid grid-cols-1 gap-4 lg:grid-cols-4">
+            {% component "unfold/components/card.html" with title="Total Runs" %}
+                <p class="text-4xl font-semibold text-font-important-light dark:text-font-important-dark">{{ total_runs }}</p>
+                {% component "unfold/components/separator.html" %}{% endcomponent %}
+                <p class="text-sm text-font-subtle-light dark:text-font-subtle-dark">All detection runs</p>
+            {% endcomponent %}
+
+            {% component "unfold/components/card.html" with title="Total Anomalies" %}
+                <p class="text-4xl font-semibold text-font-important-light dark:text-font-important-dark">{{ total_anomalies }}</p>
+                {% component "unfold/components/separator.html" %}{% endcomponent %}
+                <p class="text-sm text-font-subtle-light dark:text-font-subtle-dark">Anomalies detected</p>
+            {% endcomponent %}
+
+            {% component "unfold/components/card.html" with title="Prevention" %}
+                <p class="text-4xl font-semibold text-font-important-light dark:text-font-important-dark">{{ by_phase.prevention|default:"0" }}</p>
+                {% component "unfold/components/separator.html" %}{% endcomponent %}
+                <p class="text-sm text-font-subtle-light dark:text-font-subtle-dark">Prevention anomalies</p>
+            {% endcomponent %}
+
+            {% component "unfold/components/card.html" with title="Detection" %}
+                <p class="text-4xl font-semibold text-font-important-light dark:text-font-important-dark">{{ by_phase.detection|default:"0" }}</p>
+                {% component "unfold/components/separator.html" %}{% endcomponent %}
+                <p class="text-sm text-font-subtle-light dark:text-font-subtle-dark">Detection anomalies</p>
+            {% endcomponent %}
         </div>
     </div>
 
-    <h2>By Severity</h2>
-    <div style="display: flex; gap: 20px; margin: 20px 0;">
-        {% for sev, count in by_severity.items %}
-        <div style="border: 1px solid #ccc; padding: 20px; border-radius: 8px; min-width: 100px; text-align: center;">
-            <h4>{{ sev|capfirst }}</h4>
-            <p style="font-size: 1.5em;">{{ count }}</p>
-        </div>
-        {% endfor %}
+    <div>
+        {% component "unfold/components/card.html" with title="By Severity" %}
+            <div class="grid grid-cols-1 gap-4 lg:grid-cols-4">
+                {% for sev, count in by_severity.items %}
+                    {% component "unfold/components/card.html" with class="text-center" %}
+                        <h4 class="font-semibold text-sm text-font-important-light dark:text-font-important-dark">{{ sev|capfirst }}</h4>
+                        <p class="text-2xl font-semibold mt-2 {% if sev == 'critical' %}text-red-600{% elif sev == 'high' %}text-orange-600{% elif sev == 'medium' %}text-yellow-600{% else %}text-gray-600{% endif %}">{{ count }}</p>
+                    {% endcomponent %}
+                {% endfor %}
+            </div>
+        {% endcomponent %}
     </div>
 
-    <h2>Recent Runs</h2>
-    <table style="width: 100%; border-collapse: collapse;">
-        <tr>
-            <th style="text-align: left; padding: 8px; border-bottom: 2px solid #ccc;">ID</th>
-            <th style="text-align: left; padding: 8px; border-bottom: 2px solid #ccc;">Phase</th>
-            <th style="text-align: left; padding: 8px; border-bottom: 2px solid #ccc;">Status</th>
-            <th style="text-align: left; padding: 8px; border-bottom: 2px solid #ccc;">Anomalies</th>
-            <th style="text-align: left; padding: 8px; border-bottom: 2px solid #ccc;">Started</th>
-        </tr>
-        {% for run in recent_runs %}
-        <tr>
-            <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ run.id|truncatechars:8 }}</td>
-            <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ run.phase }}</td>
-            <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ run.status }}</td>
-            <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ run.anomalies_found }}</td>
-            <td style="padding: 8px; border-bottom: 1px solid #eee;">{{ run.started_at|date:"Y-m-d H:i" }}</td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="5" style="padding: 8px;">No runs yet.</td></tr>
-        {% endfor %}
-    </table>
+    <div>
+        {% component "unfold/components/card.html" with title="Recent Runs" %}
+            <table class="min-w-full">
+                <thead>
+                    <tr class="bg-base-50 dark:bg-base-900">
+                        <th class="px-4 py-2 text-left font-semibold text-sm text-font-important-light dark:text-font-important-dark">ID</th>
+                        <th class="px-4 py-2 text-left font-semibold text-sm text-font-important-light dark:text-font-important-dark">Phase</th>
+                        <th class="px-4 py-2 text-left font-semibold text-sm text-font-important-light dark:text-font-important-dark">Status</th>
+                        <th class="px-4 py-2 text-left font-semibold text-sm text-font-important-light dark:text-font-important-dark">Anomalies</th>
+                        <th class="px-4 py-2 text-left font-semibold text-sm text-font-important-light dark:text-font-important-dark">Started</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for run in recent_runs %}
+                    <tr class="border-t border-base-200 dark:border-base-800">
+                        <td class="px-4 py-2 text-sm">{{ run.id|truncatechars:8 }}</td>
+                        <td class="px-4 py-2 text-sm">{{ run.phase }}</td>
+                        <td class="px-4 py-2 text-sm">{{ run.status }}</td>
+                        <td class="px-4 py-2 text-sm">{{ run.anomalies_found }}</td>
+                        <td class="px-4 py-2 text-sm">{{ run.started_at|date:"Y-m-d H:i" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-4 py-8 text-center text-sm text-font-subtle-light dark:text-font-subtle-dark">No runs yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endcomponent %}
+    </div>
 </div>
 {% endblock %}

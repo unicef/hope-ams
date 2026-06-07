@@ -66,3 +66,73 @@ SECRET_KEY = env("SECRET_KEY")
 CACHES = {
     "default": env.cache("CACHE_URL"),
 }
+
+UNFOLD = {
+    "SITE_TITLE": "Anomaly Management System",
+    "SITE_HEADER": "AMS Admin",
+    "SITE_URL": "/",
+    "SITE_SYMBOL": "shield",
+    "SHOW_HISTORY": True,
+    "SHOW_VIEW_ON_SITE": False,
+    "SIDEBAR": {
+        "show_search": True,
+        "show_all_applications": True,
+        "navigation": [
+            {
+                "title": "Overview",
+                "items": [
+                    {
+                        "title": "Dashboard",
+                        "icon": "dashboard",
+                        "link": "/admin/",
+                    },
+                ],
+            },
+            {
+                "title": "Detection",
+                "items": [
+                    {
+                        "title": "Detection Runs",
+                        "icon": "play_arrow",
+                        "link": "/admin/detections/detectionrun/",
+                    },
+                    {
+                        "title": "Anomaly Results",
+                        "icon": "warning",
+                        "link": "/admin/detections/anomalyresult/",
+                    },
+                ],
+            },
+            {
+                "title": "Reference Data",
+                "items": [
+                    {
+                        "title": "Business Areas",
+                        "icon": "business",
+                        "link": "/admin/detections/businessarea/",
+                    },
+                    {
+                        "title": "Programs",
+                        "icon": "folder",
+                        "link": "/admin/detections/program/",
+                    },
+                    {
+                        "title": "Payment Plans",
+                        "icon": "payments",
+                        "link": "/admin/detections/paymentplan/",
+                    },
+                ],
+            },
+            {
+                "title": "Configuration",
+                "items": [
+                    {
+                        "title": "Rule Configurations",
+                        "icon": "tune",
+                        "link": "/admin/detections/ruleconfig/",
+                    },
+                ],
+            },
+        ],
+    },
+}

@@ -26,6 +26,7 @@ dependencies = [
   "django-celery-results>=2.5.1",
   "django-environ>=0.11.2",
   "django-smart-env>=0.1",
+  "django-unfold>=0.97",
   "djangorestframework>=3.15.1",
   "phonenumbers>=9.0.8",
   "psycopg2-binary>=2.9.9",

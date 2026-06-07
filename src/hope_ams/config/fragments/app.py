@@ -1,4 +1,6 @@
 INSTALLED_APPS = [
+    "unfold.apps.BasicAppConfig",
+    "unfold.contrib.filters",
     "django.contrib.contenttypes",
     "django.contrib.auth",
     "django.contrib.messages",
