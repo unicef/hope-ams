@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import UTC, date, datetime
 
 from ..base import BaseRule, Finding, RuleContext
 
@@ -12,7 +12,7 @@ class NoWorkingAgeAdultsRule(BaseRule):
 
     def evaluate(self, ctx: RuleContext) -> list[Finding]:
         findings = []
-        today = datetime.now(datetime.UTC).date()
+        today = datetime.now(tz=UTC).date()
         min_age = self.get_config(ctx).get("min_working_age", 18)
         max_age = self.get_config(ctx).get("max_working_age", 59)
         max_children = self.get_config(ctx).get("max_children", 3)

@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import UTC, date, datetime
 
 from ..base import BaseRule, Finding, RuleContext
 
@@ -11,7 +11,7 @@ class ReconciliationOverdueRule(BaseRule):
     default_config = {"default_reconciliation_window_days": 30}
 
     def evaluate(self, ctx: RuleContext) -> list[Finding]:
-        findings = []
+        findings: list[Finding] = []
         pp = ctx.payment_plan
         if pp.get("status") != "ACCEPTED":
             return findings
@@ -32,7 +32,7 @@ class ReconciliationOverdueRule(BaseRule):
         except ValueError, TypeError:
             return findings
 
-        today = datetime.now(datetime.UTC).date()
+        today = datetime.now(tz=UTC).date()
         due_date = start_date
         from datetime import timedelta
 

@@ -1,5 +1,16 @@
 # AMS — Agent Guidance
 
+AMS is a standalone Django microservice that performs **rule-based anomaly detection** on HOPE payment data. It has zero access to HOPE databases — all data is pushed via API payload.
+
+1. **[.ai/standards.md](.ai/standards.md):** Environment setup, Python/Django conventions, linting, and type safety rules.
+2. **[.ai/architecture.md](.ai/architecture.md):** Project layout, code structure, and import patterns.
+3. **[.ai/workflow.md](.ai/workflow.md):** Coding rules.
+4. **[.ai/safety.md](.ai/safety.md):** Secret management, git safety, and data privacy rules.
+5. **[.ai/testing-patterns.md](.ai/testing-patterns.md):** Test factories, fixtures, markers, and coverage rules.
+6. **[.ai/dispatchers.md](.ai/dispatchers.md):** Dispatcher implementation and testing guidelines.
+
+All `.ai/` files are the single source of truth for their respective domains. Do not duplicate this content in other instruction files.
+
 ## Quick start
 
 ```bash

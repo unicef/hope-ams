@@ -10,7 +10,7 @@ class WithdrawnHhInActivePlanRule(BaseRule):
     INACTIVE_STATUSES = ("FINISHED", "CLOSED")
 
     def evaluate(self, ctx: RuleContext) -> list[Finding]:
-        findings = []
+        findings: list[Finding] = []
         pp_status = ctx.payment_plan.get("status", "")
         if pp_status in self.INACTIVE_STATUSES:
             return findings

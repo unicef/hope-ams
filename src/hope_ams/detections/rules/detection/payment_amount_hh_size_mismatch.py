@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import contextlib
+from typing import Any
 
 from ..base import BaseRule, Finding, RuleContext
 
@@ -11,7 +14,7 @@ class PaymentAmountHhSizeMismatchRule(BaseRule):
     default_config = {"expected_per_capita": None, "deviation_threshold_pct": 50}
 
     def evaluate(self, ctx: RuleContext) -> list[Finding]:
-        payments_with_size = []
+        payments_with_size: list[dict[str, Any]] = []
         for payment in ctx.payments:
             snapshot = payment.get("snapshot_data", {})
             size = snapshot.get("size", 0)

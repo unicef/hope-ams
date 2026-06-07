@@ -1,4 +1,5 @@
-from datetime import date, datetime
+from datetime import UTC, date, datetime
+from uuid import UUID
 
 from ..base import BaseRule, Finding, RuleContext
 
@@ -12,7 +13,7 @@ class EstimatedBirthDateMismatchRule(BaseRule):
 
     def evaluate(self, ctx: RuleContext) -> list[Finding]:
         findings = []
-        today = datetime.now(datetime.UTC).date()
+        today = datetime.now(tz=UTC).date()
         max_diff = self.get_config(ctx).get("max_age_diff", 2)
 
         for payment in ctx.payments:
@@ -42,7 +43,7 @@ class EstimatedBirthDateMismatchRule(BaseRule):
                                 f"but age_at_registration is {age_at_reg}"
                             ),
                             object_type="individual",
-                            object_id=str(ind.get("id", "")),
+                            object_id=UUID(str(ind.get("id", ""))),
                             object_unicef_id=ind.get("unicef_id", ""),
                             metadata={
                                 "full_name": ind.get("full_name"),

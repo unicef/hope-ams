@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import UTC, date, datetime
 
 from ..base import BaseRule, Finding, RuleContext
 
@@ -12,7 +12,7 @@ class ChildHeadOfHouseholdRule(BaseRule):
 
     def evaluate(self, ctx: RuleContext) -> list[Finding]:
         findings = []
-        today = datetime.now(datetime.UTC).date()
+        today = datetime.now(tz=UTC).date()
         for payment in ctx.payments:
             individuals = payment.get("snapshot_data", {}).get("individuals", [])
             for ind in individuals:

@@ -14,12 +14,12 @@ class Finding:
     title: str
     description: str
     object_type: str
-    object_id: UUID
+    object_id: str | UUID
     object_unicef_id: str = ""
     metadata: dict[str, Any] = field(default_factory=dict)
-    payment_id: UUID | None = None
-    household_id: UUID | None = None
-    individual_id: UUID | None = None
+    payment_id: str | UUID | None = None
+    household_id: str | UUID | None = None
+    individual_id: str | UUID | None = None
 
 
 @dataclass
@@ -32,15 +32,15 @@ class RuleContext:
 
     @property
     def business_area_id(self) -> str:
-        return self.payment_plan["business_area"]["id"]
+        return str(self.payment_plan["business_area"]["id"])
 
     @property
     def program_id(self) -> str:
-        return self.payment_plan["program"]["id"]
+        return str(self.payment_plan["program"]["id"])
 
     @property
     def payment_plan_id(self) -> str:
-        return self.payment_plan["id"]
+        return str(self.payment_plan["id"])
 
 
 class BaseRule(ABC):
@@ -64,7 +64,7 @@ class BaseRule(ABC):
 
     def is_enabled(self, ctx: RuleContext) -> bool:
         rule_cfg = ctx.config.get("rules", {}).get(self.name, {})
-        return rule_cfg.get("enabled", True)
+        return bool(rule_cfg.get("enabled", True))
 
     @abstractmethod
     def evaluate(self, ctx: RuleContext) -> list[Finding]: ...

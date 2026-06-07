@@ -1,5 +1,5 @@
 # Should match when logging an exception.
-def test_log_info_exception():
+def test_log_info_exception() -> None:
     try:
         do_something()
     except Exception as exc:
@@ -8,7 +8,7 @@ def test_log_info_exception():
 
 
 # Should match when catching multiple exceptions.
-def test_log_catch_multiple_exceptions():
+def test_log_catch_multiple_exceptions() -> None:
     try:
         do_something()
     except (OSError, FileNotFoundError) as exc:
@@ -29,7 +29,7 @@ def test_log_catch_multiple_exceptions():
 
 # Should match when logging an exception in the middle
 # of a 'except' block.
-def test_log_middle_of_statement():
+def test_log_middle_of_statement() -> None:
     try:
         do_something()
     except Exception as exc:
@@ -40,7 +40,7 @@ def test_log_middle_of_statement():
 
 
 # Should match when catching multiple exceptions.
-def test_log_info_exception():
+def test_log_info_exception() -> None:
     try:
         do_something()
     except (OSError, FileNotFoundError) as exc:
@@ -49,7 +49,7 @@ def test_log_info_exception():
 
 
 # Should match when extra contains multiple keys & values.
-def test_log_multiple_extra():
+def test_log_multiple_extra() -> None:
     try:
         do_something()
     except Exception as exc:
@@ -58,7 +58,7 @@ def test_log_multiple_extra():
 
 
 # Should match when extra is before other arguments (case #1).
-def test_log_exception_trailing_arguments_case1():
+def test_log_exception_trailing_arguments_case1() -> None:
     try:
         do_something()
     except Exception as exc:
@@ -68,7 +68,7 @@ def test_log_exception_trailing_arguments_case1():
 
 
 # Should match when extra is before other arguments (case #2).
-def test_log_exception_trailing_arguments_case2():
+def test_log_exception_trailing_arguments_case2() -> None:
     try:
         do_something()
     except Exception as exc:
@@ -78,7 +78,7 @@ def test_log_exception_trailing_arguments_case2():
 
 
 # Should match when using a 'finally' block
-def test_log_exception_with_finally_block():
+def test_log_exception_with_finally_block() -> None:
     try:
         do_something()
     except Exception as exc:
@@ -89,7 +89,7 @@ def test_log_exception_with_finally_block():
 
 
 # Should match when using a 'else' block
-def test_log_exception_with_else_block():
+def test_log_exception_with_else_block() -> None:
     try:
         do_something()
     except Exception as exc:
@@ -100,7 +100,7 @@ def test_log_exception_with_else_block():
 
 
 # Should match when using a 'else' and 'finally' block
-def test_log_exception_with_finally_else_block():
+def test_log_exception_with_finally_else_block() -> None:
     try:
         do_something()
     except Exception as exc:
@@ -113,7 +113,7 @@ def test_log_exception_with_finally_else_block():
 
 
 # Should not match when converting an exception object to string.
-def test_not_logging_exception():
+def test_not_logging_exception() -> None:
     try:
         do_something()
     except Exception as exc:
@@ -122,7 +122,7 @@ def test_not_logging_exception():
 
 
 # Should not match when using an attribute from the exception object.
-def test_not_logging_exception():
+def test_not_logging_exception() -> None:
     try:
         do_something()
     except Exception as exc:

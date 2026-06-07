@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from uuid import UUID
 
 from django.db import transaction
 from django.db.models import Count
@@ -20,7 +21,8 @@ from hope_ams.detections.models import (
 from hope_ams.detections.tasks import process_analysis
 
 if TYPE_CHECKING:
-    from django.http import HttpRequest, HttpResponse
+    from django.http import HttpResponse
+    from rest_framework.request import Request
 
 from .auth import APIKeyAuthentication
 from .serializers import (
@@ -36,7 +38,7 @@ from .serializers import (
 @api_view(["POST"])
 @authentication_classes([APIKeyAuthentication])
 @permission_classes([IsAuthenticated])
-def submit_run(request: HttpRequest) -> HttpResponse:
+def submit_run(request: Request) -> HttpResponse:
     serializer = SubmitRunSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     data = serializer.validated_data
@@ -85,7 +87,7 @@ def submit_run(request: HttpRequest) -> HttpResponse:
 @api_view(["GET"])
 @authentication_classes([APIKeyAuthentication])
 @permission_classes([IsAuthenticated])
-def run_detail(request: HttpRequest, run_id: str) -> HttpResponse:
+def run_detail(request: Request, run_id: str) -> HttpResponse:
     try:
         run = DetectionRun.objects.get(id=run_id)
     except DetectionRun.DoesNotExist:
@@ -96,11 +98,11 @@ def run_detail(request: HttpRequest, run_id: str) -> HttpResponse:
 @api_view(["GET"])
 @authentication_classes([APIKeyAuthentication])
 @permission_classes([IsAuthenticated])
-def anomaly_list(request: HttpRequest) -> HttpResponse:
+def anomaly_list(request: Request) -> HttpResponse:
     qs = AnomalyResult.objects.select_related("detection_run", "business_area", "program", "payment_plan")
     run_id = request.query_params.get("run_id")
     if run_id:
-        qs = qs.filter(detection_run_id=run_id)
+        qs = qs.filter(detection_run_id=UUID(run_id))
     phase = request.query_params.get("phase")
     if phase:
         qs = qs.filter(phase=phase)
@@ -115,7 +117,7 @@ def anomaly_list(request: HttpRequest) -> HttpResponse:
         qs = qs.filter(rule_name=rule_name)
     ba_id = request.query_params.get("business_area_id")
     if ba_id:
-        qs = qs.filter(business_area_id=ba_id)
+        qs = qs.filter(business_area_id=UUID(ba_id))
     qs = qs.order_by("-created_at")
     page = int(request.query_params.get("page", 1))
     page_size = int(request.query_params.get("page_size", 100))
@@ -129,7 +131,7 @@ def anomaly_list(request: HttpRequest) -> HttpResponse:
 @api_view(["PATCH"])
 @authentication_classes([APIKeyAuthentication])
 @permission_classes([IsAuthenticated])
-def anomaly_update(request: HttpRequest, anomaly_id: str) -> HttpResponse:
+def anomaly_update(request: Request, anomaly_id: str) -> HttpResponse:
     try:
         anomaly = AnomalyResult.objects.get(id=anomaly_id)
     except AnomalyResult.DoesNotExist:
@@ -144,7 +146,7 @@ def anomaly_update(request: HttpRequest, anomaly_id: str) -> HttpResponse:
 @api_view(["GET"])
 @authentication_classes([APIKeyAuthentication])
 @permission_classes([IsAuthenticated])
-def stats(request: HttpRequest) -> HttpResponse:
+def stats(request: Request) -> HttpResponse:
     total_runs = DetectionRun.objects.count()
     total_anomalies = AnomalyResult.objects.count()
     by_severity = dict(
@@ -165,7 +167,7 @@ def stats(request: HttpRequest) -> HttpResponse:
 @api_view(["GET"])
 @authentication_classes([APIKeyAuthentication])
 @permission_classes([IsAuthenticated])
-def rule_config_list(request: HttpRequest) -> HttpResponse:
+def rule_config_list(request: Request) -> HttpResponse:
     qs = RuleConfig.objects.select_related("business_area", "program", "payment_plan")
     rule_name = request.query_params.get("rule_name")
     if rule_name:

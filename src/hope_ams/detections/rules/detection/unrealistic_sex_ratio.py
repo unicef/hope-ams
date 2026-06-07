@@ -1,4 +1,5 @@
 from collections import defaultdict
+from uuid import UUID
 
 from ..base import BaseRule, Finding, RuleContext
 
@@ -42,7 +43,7 @@ class UnrealisticSexRatioRule(BaseRule):
                             f"{counts['FEMALE']} females (ratio: {ratio:.2f})"
                         ),
                         object_type="payment_plan",
-                        object_id=ctx.payment_plan_id,
+                        object_id=UUID(ctx.payment_plan_id),
                         object_unicef_id=ctx.payment_plan.get("unicef_id", ""),
                         metadata={
                             "admin_area_id": admin2,

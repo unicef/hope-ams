@@ -48,7 +48,7 @@ def process_analysis(task_self: Any, run_id: str, data: dict) -> None:
                 run.rules_executed += 1
 
         with transaction.atomic():
-            anomaly_objs = []
+            anomaly_objs: list[AnomalyResult] = []
             for rule_name, findings in rule_findings:
                 anomaly_objs.extend(
                     AnomalyResult(

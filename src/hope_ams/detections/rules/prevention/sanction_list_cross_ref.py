@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from ..base import BaseRule, Finding, RuleContext
 
 
@@ -18,7 +20,7 @@ class SanctionListCrossRefRule(BaseRule):
                     f"has a confirmed sanction list match"
                 ),
                 object_type="individual",
-                object_id=str(ind.get("id", "")),
+                object_id=UUID(str(ind.get("id", ""))),
                 object_unicef_id=ind.get("unicef_id", ""),
                 metadata={
                     "full_name": ind.get("full_name"),

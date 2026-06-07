@@ -44,7 +44,3 @@ class User(models.Model):
     )
 
     # ruleid: django-field-help-text-gettext
-    address = models.CharField(
-        verbose_name="Address",
-        help_text="User home address",
-    )

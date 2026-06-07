@@ -1,4 +1,5 @@
-from datetime import date, datetime
+from datetime import UTC, date, datetime
+from uuid import UUID
 
 from ..base import BaseRule, Finding, RuleContext
 
@@ -12,7 +13,7 @@ class UnrealisticAgeRule(BaseRule):
 
     def evaluate(self, ctx: RuleContext) -> list[Finding]:
         findings = []
-        today = datetime.now(datetime.UTC).date()
+        today = datetime.now(tz=UTC).date()
         max_age = self.get_config(ctx).get("max_age", 110)
         for payment in ctx.payments:
             individuals = payment.get("snapshot_data", {}).get("individuals", [])
@@ -35,7 +36,7 @@ class UnrealisticAgeRule(BaseRule):
                                 f"which is in the future"
                             ),
                             object_type="individual",
-                            object_id=str(ind.get("id", "")),
+                            object_id=UUID(str(ind.get("id", ""))),
                             object_unicef_id=ind.get("unicef_id", ""),
                             metadata={"birth_date": birth_date_str, "full_name": ind.get("full_name")},
                             household_id=payment.get("household_id"),
@@ -53,7 +54,7 @@ class UnrealisticAgeRule(BaseRule):
                                 f"Individual {ind.get('full_name', '')} has age {age} (birth date: {birth_date_str})"
                             ),
                             object_type="individual",
-                            object_id=str(ind.get("id", "")),
+                            object_id=UUID(str(ind.get("id", ""))),
                             object_unicef_id=ind.get("unicef_id", ""),
                             metadata={
                                 "age": age,

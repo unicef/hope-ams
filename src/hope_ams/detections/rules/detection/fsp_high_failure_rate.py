@@ -1,4 +1,5 @@
 from collections import Counter
+from uuid import UUID
 
 from ..base import BaseRule, Finding, RuleContext
 
@@ -37,7 +38,7 @@ class FspHighFailureRateRule(BaseRule):
                             f"({pct}%) in plan {ctx.payment_plan.get('unicef_id', '')}"
                         ),
                         object_type="payment_plan",
-                        object_id=ctx.payment_plan_id,
+                        object_id=UUID(ctx.payment_plan_id),
                         object_unicef_id=ctx.payment_plan.get("unicef_id", ""),
                         metadata={"fsp": fsp, "failed": failures, "total": total, "failure_pct": pct},
                     )

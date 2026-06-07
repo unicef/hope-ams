@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import UTC, date, datetime
 
 from ..base import BaseRule, Finding, RuleContext
 
@@ -15,7 +15,7 @@ class PendingPaymentStaleRule(BaseRule):
     def evaluate(self, ctx: RuleContext) -> list[Finding]:
         findings = []
         max_days = self.get_config(ctx).get("max_pending_days", 30)
-        today = datetime.now(datetime.UTC).date()
+        today = datetime.now(tz=UTC).date()
 
         for payment in ctx.payments:
             if payment.get("status") not in self.PENDING_STATUSES:

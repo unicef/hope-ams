@@ -1,4 +1,5 @@
-from datetime import date, datetime
+from datetime import UTC, date, datetime
+from uuid import UUID
 
 from ..base import BaseRule, Finding, RuleContext
 
@@ -12,7 +13,7 @@ class PregnantChildRule(BaseRule):
 
     def evaluate(self, ctx: RuleContext) -> list[Finding]:
         findings = []
-        today = datetime.now(datetime.UTC).date()
+        today = datetime.now(tz=UTC).date()
         min_age = self.get_config(ctx).get("min_age", 12)
         max_age = self.get_config(ctx).get("max_age", 55)
 
@@ -40,7 +41,7 @@ class PregnantChildRule(BaseRule):
                                 f"is pregnant and aged {age}"
                             ),
                             object_type="individual",
-                            object_id=str(ind.get("id", "")),
+                            object_id=UUID(str(ind.get("id", ""))),
                             object_unicef_id=ind.get("unicef_id", ""),
                             metadata={
                                 "age": age,
@@ -63,7 +64,7 @@ class PregnantChildRule(BaseRule):
                                 f"is pregnant and aged {age}"
                             ),
                             object_type="individual",
-                            object_id=str(ind.get("id", "")),
+                            object_id=UUID(str(ind.get("id", ""))),
                             object_unicef_id=ind.get("unicef_id", ""),
                             metadata={
                                 "age": age,

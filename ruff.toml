@@ -1,6 +1,6 @@
 target-version = "py314"
 line-length = 120
-exclude = [".venv", ".tox", ".ruff_cache", "__pycache__", "migrations"]
+exclude = [".venv", ".tox", ".ruff_cache", "__pycache__", "migrations", ".semgrep"]
 
 [lint]
 select = ["ALL"]
@@ -35,3 +35,5 @@ relative-imports-order = "furthest-to-closest"
 [lint.per-file-ignores]
 "tests/**.py" = ["S101", "PGH004", "TRY002", "PLR2004", "S", "D", "ANN", "N999"]
 "src/**/migrations/**.py" = ["E501"]
+"manage.py" = ["EXE001"]
+".semgrep/**" = ["ALL"]

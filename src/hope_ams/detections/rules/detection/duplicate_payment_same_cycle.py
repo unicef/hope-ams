@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from ..base import BaseRule, Finding, RuleContext
 
 
@@ -33,10 +35,10 @@ class DuplicatePaymentSameCycleRule(BaseRule):
                             f"{', '.join(unicef_ids)}"
                         ),
                         object_type="household",
-                        object_id=hh_id,
+                        object_id=UUID(str(hh_id)),
                         object_unicef_id=successful[0].get("household_unicef_id", ""),
                         metadata={"household_id": hh_id, "payment_ids": unicef_ids, "count": len(successful)},
-                        household_id=hh_id,
+                        household_id=UUID(str(hh_id)),
                     )
                 )
         return findings
