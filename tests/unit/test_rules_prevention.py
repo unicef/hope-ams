@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 from hope_ams.detections.rules.base import RuleContext
 from hope_ams.detections.rules.prevention.unrealistic_age import UnrealisticAgeRule
@@ -28,7 +28,7 @@ class TestUnrealisticAgeRule:
         assert len(findings) == 0
 
     def test_future_birth_date(self, sample_payment: dict) -> None:
-        future = (datetime.now(datetime.UTC).date() + timedelta(days=365)).isoformat()
+        future = (datetime.now(UTC).date() + timedelta(days=365)).isoformat()
         ind = sample_payment["snapshot_data"]["individuals"][0]
         ind["birth_date"] = future
         findings = UnrealisticAgeRule().evaluate(_ctx([sample_payment]))

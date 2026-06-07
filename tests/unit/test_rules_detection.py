@@ -96,7 +96,8 @@ class TestDuplicatePaymentSameCycleRule:
         assert len(findings) == 0
 
     def test_duplicates(self, sample_payment: dict) -> None:
-        p1 = {**sample_payment, "id": "pmt-1", "status": "Distribution Successful", "household_id": "hh-1"}
-        p2 = {**sample_payment, "id": "pmt-2", "status": "Distribution Successful", "household_id": "hh-1"}
+        hh_id = sample_payment["household_id"]
+        p1 = {**sample_payment, "id": "pmt-1", "status": "Distribution Successful", "household_id": hh_id}
+        p2 = {**sample_payment, "id": "pmt-2", "status": "Distribution Successful", "household_id": hh_id}
         findings = DuplicatePaymentSameCycleRule().evaluate(_ctx([p1, p2]))
         assert len(findings) >= 1

@@ -22,7 +22,7 @@ class TestBusinessArea:
     def test_unique_id(self, db) -> None:
         uid = uuid.uuid4()
         BusinessArea.objects.create(id=uid, name="BA1", slug="ba1")
-        with pytest.raises(Exception, match="UNIQUE constraint"):
+        with pytest.raises(Exception, match="unique constraint"):
             BusinessArea.objects.create(id=uid, name="BA2", slug="ba2")
 
 
@@ -48,7 +48,7 @@ class TestPaymentPlan:
 class TestDetectionRun:
     def test_create(self, db, payment_plan: PaymentPlan, program: Program, business_area: BusinessArea) -> None:
         run = DetectionRun.objects.create(
-            branch="prevention",
+            phase="prevention",
             trigger="api",
             status="queued",
             payment_plan=payment_plan,
@@ -63,7 +63,7 @@ class TestDetectionRun:
     def test_status_choices(self, db, payment_plan: PaymentPlan, program: Program, business_area: BusinessArea) -> None:
         for status in ["queued", "running", "completed", "failed"]:
             run = DetectionRun.objects.create(
-                branch="prevention",
+                phase="prevention",
                 trigger="api",
                 status=status,
                 payment_plan=payment_plan,
@@ -76,7 +76,7 @@ class TestDetectionRun:
 class TestAnomalyResult:
     def test_create(self, db, payment_plan: PaymentPlan, program: Program, business_area: BusinessArea) -> None:
         run = DetectionRun.objects.create(
-            branch="prevention",
+            phase="prevention",
             trigger="api",
             status="completed",
             payment_plan=payment_plan,
@@ -85,7 +85,7 @@ class TestAnomalyResult:
         )
         anomaly = AnomalyResult.objects.create(
             detection_run=run,
-            branch="prevention",
+            phase="prevention",
             rule_name="unrealistic_age",
             severity="critical",
             status="open",

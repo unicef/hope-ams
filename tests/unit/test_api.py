@@ -80,7 +80,7 @@ class TestAnomalyListAPI:
         from hope_ams.detections.models import AnomalyResult, DetectionRun
 
         run = DetectionRun.objects.create(
-            branch="prevention",
+            phase="prevention",
             trigger="api",
             status="completed",
             payment_plan=payment_plan,
@@ -90,7 +90,7 @@ class TestAnomalyListAPI:
         for sev in ["low", "medium", "high", "critical"]:
             AnomalyResult.objects.create(
                 detection_run=run,
-                branch="prevention",
+                phase="prevention",
                 rule_name="test_rule",
                 severity=sev,
                 status="open",
@@ -113,7 +113,7 @@ class TestAnomalyListAPI:
         from hope_ams.detections.models import AnomalyResult, DetectionRun
 
         run = DetectionRun.objects.create(
-            branch="prevention",
+            phase="prevention",
             trigger="api",
             status="completed",
             payment_plan=payment_plan,
@@ -122,7 +122,7 @@ class TestAnomalyListAPI:
         )
         anomaly = AnomalyResult.objects.create(
             detection_run=run,
-            branch="prevention",
+            phase="prevention",
             rule_name="test_rule",
             severity="high",
             status="open",
