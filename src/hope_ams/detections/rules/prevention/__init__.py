@@ -1,0 +1,33 @@
+from ..registry import registry
+
+from .child_head_of_household import ChildHeadOfHouseholdRule
+from .collector_equals_beneficiary import CollectorEqualsBeneficiaryRule
+from .document_cross_program import DocumentCrossProgramRule
+from .entitlement_outlier import EntitlementOutlierRule
+from .estimated_birth_date_mismatch import EstimatedBirthDateMismatchRule
+from .excessive_household_size import ExcessiveHouseholdSizeRule
+from .missing_collector import MissingCollectorRule
+from .no_working_age_adults import NoWorkingAgeAdultsRule
+from .phone_number_reuse import PhoneNumberReuseRule
+from .pregnant_child import PregnantChildRule
+from .same_address_different_heads import SameAddressDifferentHeadsRule
+from .same_wallet_multiple_households import SameWalletMultipleHouseholdsRule
+from .sanction_list_cross_ref import SanctionListCrossRefRule
+from .unrealistic_age import UnrealisticAgeRule
+from .zero_entitlement_not_excluded import ZeroEntitlementNotExcludedRule
+
+registry.register(ChildHeadOfHouseholdRule)
+registry.register(UnrealisticAgeRule)
+registry.register(PhoneNumberReuseRule)
+registry.register(SameWalletMultipleHouseholdsRule)
+registry.register(ExcessiveHouseholdSizeRule)
+registry.register(NoWorkingAgeAdultsRule)
+registry.register(EntitlementOutlierRule)
+registry.register(ZeroEntitlementNotExcludedRule)
+registry.register(MissingCollectorRule)
+registry.register(CollectorEqualsBeneficiaryRule)
+registry.register(DocumentCrossProgramRule)
+registry.register(SameAddressDifferentHeadsRule)
+registry.register(SanctionListCrossRefRule)
+registry.register(PregnantChildRule)
+registry.register(EstimatedBirthDateMismatchRule)

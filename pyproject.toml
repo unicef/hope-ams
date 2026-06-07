@@ -1,0 +1,80 @@
+[build-system]
+build-backend = "hatchling.build"
+requires = [
+  "hatch-vcs>=0.4",
+  "hatchling>=1.25",
+]
+
+[project]
+name = "hope-ams"
+version = "0.1.0"
+description = "HOPE Anomaly Management System"
+readme = "README.md"
+license = { text = "AGPL-3.0-only" }
+authors = [
+  { name = "sax", email = "s.apostolico@gmail.com" },
+]
+requires-python = "==3.14.*"
+classifiers = [
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.14",
+]
+dependencies = [
+  "celery>=5.4",
+  "django<6",
+  "django-celery-beat>=2.6",
+  "django-celery-results>=2.5.1",
+  "django-environ>=0.11.2",
+  "django-smart-env>=0.1",
+  "djangorestframework>=3.15.1",
+  "phonenumbers>=9.0.8",
+  "psycopg2-binary>=2.9.9",
+  "python-redis-lock[django]>=4",
+  "redis",
+  "requests>=2.32",
+  "sentry-sdk>=2.7.1",
+]
+urls.Documentation = "https://unicef.github.io/hope-ams/"
+urls.Homepage = "https://github.com/unicef/hope-ams"
+urls.Repository = "https://github.com/unicef/hope-ams"
+
+[dependency-groups]
+dev = [
+  "factory-boy",
+  "freezegun",
+  "ipython",
+  "mypy",
+  "pre-commit",
+  "pytest",
+  "pytest-celery",
+  "pytest-coverage",
+  "pytest-django",
+  "pytest-factoryboy",
+  "pytest-mock",
+  "pytest-xdist",
+  "requests-mock",
+  "ruff",
+  "tox",
+]
+type-check = [
+  "django-stubs>=5.1",
+  "djangorestframework-stubs>=3.15",
+  "types-requests",
+]
+docs = [
+  "zensical",
+]
+
+[tool.hatch]
+build.targets.sdist.include = [
+  "src/hope_ams/**/*.*",
+]
+build.targets.wheel.packages = [
+  "src/hope_ams",
+]
+
+[tool.uv]
+package = true
+
+[tool.django-stubs]
+django_settings_module = "hope_ams.config.settings"

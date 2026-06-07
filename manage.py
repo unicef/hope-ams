@@ -1,0 +1,14 @@
+#!/usr/bin/env python
+import os
+import sys
+from pathlib import Path
+
+SRC = Path("src").resolve()
+sys.path.insert(0, str(SRC))
+
+if __name__ == "__main__":
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "hope_ams.config.settings")
+
+    from django.core.management import execute_from_command_line
+
+    execute_from_command_line(sys.argv)

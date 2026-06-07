@@ -1,0 +1,37 @@
+target-version = "py314"
+line-length = 120
+exclude = [".venv", ".tox", ".ruff_cache", "__pycache__", "migrations"]
+
+[lint]
+select = ["ALL"]
+extend-select = ["UP"]
+ignore = [
+  "A005", "ARG001", "ARG002", "ARG005", "ANN401",
+  "B904", "COM812", "D100", "D101", "D102", "D103",
+  "D104", "D105", "D106", "D107", "D203", "D212",
+  "D213", "DJ001", "E731", "EM101", "EM102",
+  "FBT001", "FBT002", "FBT003", "FIX002", "I001",
+  "ISC001", "PLR2004", "PLC0415", "RUF005", "RUF012",
+  "SIM108", "SLF001", "TD003", "TID252", "TRY400",
+  "TRY401", "TRY003", "UP031", "UP035", "UP037",
+]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[lint.isort]
+case-sensitive = true
+force-wrap-aliases = true
+combine-as-imports = true
+known-third-party = ["django"]
+known-first-party = ["hope_ams"]
+no-sections = false
+lines-after-imports = 1
+relative-imports-order = "furthest-to-closest"
+
+[lint.per-file-ignores]
+"tests/**.py" = ["S101", "PGH004", "TRY002", "PLR2004", "S", "D", "ANN", "N999"]
+"src/**/migrations/**.py" = ["E501"]

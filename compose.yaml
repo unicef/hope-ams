@@ -1,0 +1,68 @@
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: ams
+      POSTGRES_USER: ams
+      POSTGRES_PASSWORD: ams
+    ports:
+      - "5433:5432"
+    volumes:
+      - ams_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ams"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    command: >
+      sh -c "uv run python manage.py migrate &&
+             uv run python manage.py runserver 0.0.0.0:8000"
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgres://ams:ams@db:5432/ams
+      CACHE_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_TASK_ALWAYS_EAGER: "false"
+      DEBUG: "true"
+      SECRET_KEY: dev-secret-key
+      ALLOWED_HOSTS: "*"
+      AMS_API_KEY: dev-ams-api-key
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  celery:
+    build: .
+    command: uv run celery -A hope_ams.config.celery worker -B -l info
+    environment:
+      DATABASE_URL: postgres://ams:ams@db:5432/ams
+      CACHE_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_TASK_ALWAYS_EAGER: "false"
+      DEBUG: "false"
+      SECRET_KEY: dev-secret-key
+      AMS_API_KEY: dev-ams-api-key
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  ams_data:

@@ -1,0 +1,25 @@
+name: "CI-CD"
+run-name: "CI/CD ${{ github.ref_name }}"
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    uses: ./.github/workflows/lint.yml
+  tests:
+    uses: ./.github/workflows/tests.yml
+    secrets: inherit
+  sdlc-push:
+    uses: ./.github/workflows/sdlc-push.yml
+    secrets: inherit
