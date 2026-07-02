@@ -6,6 +6,7 @@ from testutils.factories import RuleConfigFactory
 
 from hope_ams.detection.tasks import _load_rule_configs
 from hope_ams.models import ProgrammeRuleConfiguration
+from hope_ams.models.choices import DetectionRunStatus
 
 pytestmark = [pytest.mark.django_db]
 
@@ -66,7 +67,7 @@ def test_process_analysis_no_rules(mock_notify, payment_plan, sample_submit_payl
     process_analysis.__wrapped__(run.id, sample_submit_payload)
 
     run.refresh_from_db()
-    assert run.status == DetectionRun.Status.COMPLETED
+    assert run.status == DetectionRunStatus.COMPLETED
     assert run.rules_executed == 0
     assert run.anomalies_found == 0
 
@@ -90,7 +91,7 @@ def test_process_analysis_with_callback(mock_notify, payment_plan, sample_submit
     process_analysis.__wrapped__(run.id, payload)
 
     run.refresh_from_db()
-    assert run.status == DetectionRun.Status.COMPLETED
+    assert run.status == DetectionRunStatus.COMPLETED
     mock_notify.assert_called_once()
 
 
@@ -132,7 +133,7 @@ def test_process_analysis_with_rules(mock_notify, payment_plan, sample_payments)
     process_analysis.__wrapped__(run.id, payload)
 
     run.refresh_from_db()
-    assert run.status == DetectionRun.Status.COMPLETED
+    assert run.status == DetectionRunStatus.COMPLETED
 
 
 def test_process_analysis_failure(payment_plan, sample_submit_payload) -> None:
@@ -153,4 +154,4 @@ def test_process_analysis_failure(payment_plan, sample_submit_payload) -> None:
             process_analysis.__wrapped__(run.id, sample_submit_payload)
 
     run.refresh_from_db()
-    assert run.status == DetectionRun.Status.FAILED
+    assert run.status == DetectionRunStatus.FAILED

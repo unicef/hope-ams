@@ -3,6 +3,7 @@ import uuid
 import factory
 
 from hope_ams.models import AnomalyResult
+from hope_ams.models.choices import AnomalyStatus, SeverityLevel
 
 from .base import AutoRegisterModelFactory
 from .detection_run import DetectionRunFactory
@@ -15,8 +16,8 @@ class AnomalyResultFactory(AutoRegisterModelFactory):
     detection_run = factory.SubFactory(DetectionRunFactory)
     phase = factory.SelfAttribute("detection_run.phase")
     rule_name = "test_rule"
-    severity = AnomalyResult.Severity.MEDIUM
-    status = AnomalyResult.Status.OPEN
+    severity = SeverityLevel.MEDIUM
+    status = AnomalyStatus.OPEN
     title = factory.Sequence(lambda n: f"Anomaly {n}")
     description = ""
     office = factory.SelfAttribute("detection_run.office")

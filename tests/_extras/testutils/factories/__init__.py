@@ -3,6 +3,7 @@ from factory.django import DjangoModelFactory
 from .anomaly_result import AnomalyResultFactory
 from .base import AutoRegisterModelFactory, TAutoRegisterModelFactory, factories_registry
 from .detection_run import DetectionRunFactory
+from .json import PaymentPayloadFactory, PlanPayloadFactory
 from .office import OfficeFactory
 from .payment import PaymentFactory
 from .payment_plan import PaymentPlanFactory
@@ -11,7 +12,6 @@ from .programme_rule_configuration import ProgrammeRuleConfigurationFactory
 from .rule_config import RuleConfigFactory
 from .user import SuperUserFactory, UserFactory
 from .user_role import GroupFactory, UserRoleFactory
-from .json import PaymentPayloadFactory, PlanPayloadFactory
 
 django_model_factories = {factory._meta.model: factory for factory in DjangoModelFactory.__subclasses__()}
 

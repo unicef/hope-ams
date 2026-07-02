@@ -16,6 +16,7 @@ from hope_ams.models import (
     ProgrammeRuleConfiguration,
     RuleConfig,
 )
+from hope_ams.models.choices import AnomalyStatus, DetectionRunStatus
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +61,7 @@ def _load_rule_configs(programme_id: str, phase: str) -> dict[str, RuleConfig | 
 )
 def process_analysis(task_self: Any, run_id: int, data: dict[str, Any]) -> None:
     run = DetectionRun.objects.get(id=run_id)
-    run.status = DetectionRun.Status.RUNNING
+    run.status = DetectionRunStatus.RUNNING
     run.save(update_fields=["status"])
 
     try:
@@ -103,7 +104,7 @@ def process_analysis(task_self: Any, run_id: int, data: dict[str, Any]) -> None:
                         phase=run.phase,
                         rule_name=rule_name,
                         severity=finding.severity,
-                        status=AnomalyResult.Status.OPEN,
+                        status=AnomalyStatus.OPEN,
                         title=finding.title,
                         description=finding.description,
                         office=run.office,
@@ -120,7 +121,7 @@ def process_analysis(task_self: Any, run_id: int, data: dict[str, Any]) -> None:
             AnomalyResult.objects.bulk_create(anomaly_objs)
             run.anomalies_found = len(anomaly_objs)
 
-        run.status = DetectionRun.Status.COMPLETED
+        run.status = DetectionRunStatus.COMPLETED
         run.finished_at = datetime.now(tz=UTC)
         run.save()
 
@@ -140,7 +141,7 @@ def process_analysis(task_self: Any, run_id: int, data: dict[str, Any]) -> None:
             )
 
     except Exception:
-        run.status = DetectionRun.Status.FAILED
+        run.status = DetectionRunStatus.FAILED
         run.finished_at = datetime.now(tz=UTC)
         run.save()
         raise

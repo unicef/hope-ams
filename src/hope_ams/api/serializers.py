@@ -4,6 +4,7 @@ from hope_ams.models import (
     AnomalyResult,
     DetectionRun,
 )
+from hope_ams.models.choices import AnomalyStatus
 
 
 class OfficeItemSerializer(serializers.Serializer):
@@ -126,7 +127,7 @@ class AnomalyResultListSerializer(serializers.ModelSerializer):
 
 
 class AnomalyResultStatusSerializer(serializers.Serializer):
-    status = serializers.ChoiceField(choices=AnomalyResult.Status.choices)
+    status = serializers.ChoiceField(choices=AnomalyStatus.choices)
 
 
 class StatSerializer(serializers.Serializer):

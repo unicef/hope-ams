@@ -23,6 +23,7 @@ from hope_ams.models import (
     PaymentPlan,
     Programme,
 )
+from hope_ams.models.choices import DetectionRunStatus, DetectionRunTrigger
 
 from .auth import APIKeyAuthentication
 from .payment_plan_serializer import PaymentPlanSerializer
@@ -88,8 +89,8 @@ def submit_run(request: "Request") -> "HttpResponse":
 
         run = DetectionRun.objects.create(
             phase=data["phase"],
-            trigger=DetectionRun.Trigger.API,
-            status=DetectionRun.Status.QUEUED,
+            trigger=DetectionRunTrigger.API,
+            status=DetectionRunStatus.QUEUED,
             payment_plan=payment_plan,
             programme=programme,
             office=office,

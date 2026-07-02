@@ -2,6 +2,7 @@ import factory
 
 from hope_ams.detection.rules.prevention.pregnant_child import PregnantChildRule
 from hope_ams.models import ProgrammeRuleConfiguration
+from hope_ams.models.choices import CommonPhase
 
 from .base import AutoRegisterModelFactory
 from .programme import ProgrammeFactory
@@ -15,5 +16,5 @@ class ProgrammeRuleConfigurationFactory(AutoRegisterModelFactory):
     rule = PregnantChildRule
     enabled = True
     config = {}
-    phase = ProgrammeRuleConfiguration.Phase.BOTH
+    phase = CommonPhase.BOTH
     programme = factory.SubFactory(ProgrammeFactory)
