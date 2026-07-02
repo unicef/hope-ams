@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils.translation import gettext as _
 
+from .office import Office
+
 
 class Programme(models.Model):
     correlation_id = models.UUIDField(
@@ -21,7 +23,7 @@ class Programme(models.Model):
         help_text=_("Programme code or identifier"),
     )
     office = models.ForeignKey(
-        "Office",
+        Office,
         on_delete=models.CASCADE,
         related_name="programmes",
         verbose_name=_("Office"),

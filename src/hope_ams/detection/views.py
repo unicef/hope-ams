@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from django.http import HttpRequest, HttpResponse
 
 
-def dashboard(request: "HttpRequest") -> "HttpResponse":
+def dashboard(request: "HttpRequest", office: str, program: int) -> "HttpResponse":
     base_runs = DetectionRun.objects.all()
     base_anomalies = AnomalyResult.objects.all()
 

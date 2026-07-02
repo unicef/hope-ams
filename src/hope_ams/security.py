@@ -13,7 +13,7 @@ class AnyUserAuthBackend(ModelBackend):
 
     def authenticate(
         self,
-        request: "HttpRequest" | None,
+        request: HttpRequest | None,
         username: str | None = None,
         password: str | None = None,
         **kwargs: Any,

@@ -17,6 +17,9 @@ Standalone Django service for rule-based anomaly detection on HOPE payment data.
 📖 [Documentation](https://unicef.github.io/hope-ams) · [Contributing](CONTRIBUTING.md)
 
 
+[<img src="./docs/src/img/dashboard.png" style="margin-left: auto;margin-right: auto;width:500px;display:block"/>](./docs/src/img/hope_workspace.png)
+
+
 ## Components
 
 ### Input

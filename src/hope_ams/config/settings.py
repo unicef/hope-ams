@@ -13,6 +13,7 @@ DATABASES = {
 }
 
 INSTALLED_APPS = [
+    "hope_ams.web",
     "unfold.apps.DefaultAppConfig",
     "unfold.contrib.filters",
     "django.contrib.contenttypes",
