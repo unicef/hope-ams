@@ -401,3 +401,51 @@ def test_delivery_date_str_parses_correctly(db) -> None:
     validated_date = serializer.validated_data.get("delivery_date")
     assert validated_date is not None
     assert str(validated_date)[:10] == "2025-03-15"
+
+
+def test_invalid_delivery_date_str_returns_none(db) -> None:
+    from hope_ams.api.payment_plan_serializer import PaymentPlanPaymentSerializer
+
+    payload = {
+        "id": str(uuid.uuid4()),
+        "individual_id": "IND-001",
+        "delivery_date_str": "not-a-date",
+    }
+
+    serializer = PaymentPlanPaymentSerializer(data=payload)
+    assert serializer.is_valid(), f"Errors: {serializer.errors}"
+    assert serializer.validated_data.get("delivery_date") is None
+
+
+def test_invalid_pk_rejected_by_validation(db) -> None:
+    from hope_ams.api.payment_plan_serializer import PaymentPlanSerializer
+
+    payload = _check_payload()
+    payload["pk"] = "not-a-uuid"
+
+    serializer = PaymentPlanSerializer(data=payload)
+    assert not serializer.is_valid()
+    assert "pk" in serializer.errors
+
+
+def test_payment_without_id_generates_uuid(db) -> None:
+    from hope_ams.api.payment_plan_serializer import PaymentPlanSerializer
+
+    payload = _check_payload()
+    del payload["payments"][0]["id"]
+
+    serializer = PaymentPlanSerializer(data=payload)
+    assert serializer.is_valid(), f"Errors: {serializer.errors}"
+    result = serializer.save()
+    assert result.payments.count() == 1
+
+
+def test_payment_invalid_id_rejected_by_validation(db) -> None:
+    from hope_ams.api.payment_plan_serializer import PaymentPlanSerializer
+
+    payload = _check_payload()
+    payload["payments"][0]["id"] = "not-a-uuid"
+
+    serializer = PaymentPlanSerializer(data=payload)
+    assert not serializer.is_valid()
+    assert "id" in serializer.errors["payments"][0]

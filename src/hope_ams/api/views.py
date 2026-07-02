@@ -188,6 +188,6 @@ def stats(request: "Request") -> "HttpResponse":
         "total_anomalies": total_anomalies,
         "by_severity": by_severity,
         "by_phase": by_phase,
-        "recent_runs": DetectionRunSerializer(recent_runs, many=True).data,
+        "recent_runs": recent_runs,
     }
     return Response(StatSerializer(data).data)

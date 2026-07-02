@@ -22,9 +22,9 @@ class UserRole(models.Model):
     programme = models.ForeignKey(
         "hope_ams.Programme",
         on_delete=models.CASCADE,
+        verbose_name=_("Programme"),
         blank=True,
         null=True,
-        verbose_name=_("Programme"),
         help_text=_("The programme this role is associated with (if any)"),
     )
     group = models.ForeignKey(

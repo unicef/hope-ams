@@ -1,4 +1,16 @@
-# HOPE Anomaly Management System (AMS)
+
+[<img src="./docs/src/img/badge.png" style="margin-left: auto;margin-right: auto;width:300px;display:block"/>](./docs/src/img/hope_workspace.png)
+
+# Anomaly Management System (AMS)
+
+---
+
+[![Test](https://github.com/unicef/hope-ams/actions/workflows/test.yml/badge.svg)](https://github.com/unicef/hope-ams/actions/workflows/test.yml)
+[![Lint](https://github.com/unicef/hope-ams/actions/workflows/lint.yml/badge.svg)](https://github.com/unicef/hope-ams/actions/workflows/lint.yml)
+[![codecov](https://codecov.io/github/unicef/hope-ams/graph/badge.svg?token=FBUB7HML5S)](https://codecov.io/github/unicef/hope-ams)
+[![Documentation](https://github.com/unicef/hope-ams/actions/workflows/docs.yml/badge.svg)](https://unicef.github.io/hope-ams/)
+[![Docker Pulls](https://img.shields.io/docker/pulls/unicef/hope-ams)](https://hub.docker.com/repository/docker/unicef/hope-ams/tags)
+
 
 Standalone Django service for rule-based anomaly detection on HOPE payment data.
 
