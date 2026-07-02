@@ -1,35 +1,35 @@
-from __future__ import annotations
-
 from typing import TYPE_CHECKING
-from uuid import UUID
 
 from django.db import transaction
 from django.db.models import Count
 from rest_framework import status
-from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.decorators import (
+    api_view,
+    authentication_classes,
+    permission_classes,
+)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-
-from hope_ams.detections.models import (
-    AnomalyResult,
-    BusinessArea,
-    DetectionRun,
-    PaymentPlan,
-    Program,
-    RuleConfig,
-)
-from hope_ams.detections.tasks import process_analysis
 
 if TYPE_CHECKING:
     from django.http import HttpResponse
     from rest_framework.request import Request
 
+from hope_ams.detection.tasks import process_analysis
+from hope_ams.models import (
+    AnomalyResult,
+    DetectionRun,
+    Office,
+    PaymentPlan,
+    Programme,
+)
+
 from .auth import APIKeyAuthentication
+from .payment_plan_serializer import PaymentPlanSerializer
 from .serializers import (
     AnomalyResultListSerializer,
     AnomalyResultStatusSerializer,
     DetectionRunSerializer,
-    RuleConfigSerializer,
     StatSerializer,
     SubmitRunSerializer,
 )
@@ -38,31 +38,51 @@ from .serializers import (
 @api_view(["POST"])
 @authentication_classes([APIKeyAuthentication])
 @permission_classes([IsAuthenticated])
-def submit_run(request: Request) -> HttpResponse:
+def submit_check(request: "Request") -> "HttpResponse":
+    serializer = PaymentPlanSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    payment_plan = serializer.save()
+
+    response_data = {
+        "id": str(payment_plan.id),
+        "correlation_id": str(payment_plan.correlation_id),
+        "unicef_id": payment_plan.unicef_id,
+        "status": payment_plan.status,
+        "created_at": payment_plan.created_at,
+        "payments_count": payment_plan.payments.count(),
+    }
+
+    return Response(response_data, status=status.HTTP_201_CREATED)
+
+
+@api_view(["POST"])
+@authentication_classes([APIKeyAuthentication])
+@permission_classes([IsAuthenticated])
+def submit_run(request: "Request") -> "HttpResponse":
     serializer = SubmitRunSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     data = serializer.validated_data
 
     with transaction.atomic():
-        ba_data = data["payment_plan"]["business_area"]
-        business_area, _ = BusinessArea.objects.update_or_create(
-            id=ba_data["id"],
-            defaults={"name": ba_data["name"], "slug": ba_data["slug"]},
+        office_data = data["payment_plan"]["office"]
+        office, _ = Office.objects.update_or_create(
+            correlation_id=office_data["id"],
+            defaults={"name": office_data["name"], "slug": office_data["slug"]},
         )
 
-        prog_data = data["payment_plan"]["program"]
-        program, _ = Program.objects.update_or_create(
-            id=prog_data["id"],
-            defaults={"name": prog_data["name"], "business_area": business_area},
+        programme_data = data["payment_plan"]["programme"]
+        programme, _ = Programme.objects.update_or_create(
+            correlation_id=programme_data["id"],
+            defaults={"name": programme_data["name"], "office": office},
         )
 
         pp_data = data["payment_plan"]
         payment_plan, _ = PaymentPlan.objects.update_or_create(
-            id=pp_data["id"],
+            correlation_id=pp_data["id"],
             defaults={
                 "unicef_id": pp_data.get("unicef_id", ""),
-                "program": program,
-                "business_area": business_area,
+                "programme": programme,
+                "office": office,
             },
         )
 
@@ -71,15 +91,15 @@ def submit_run(request: Request) -> HttpResponse:
             trigger=DetectionRun.Trigger.API,
             status=DetectionRun.Status.QUEUED,
             payment_plan=payment_plan,
-            program=program,
-            business_area=business_area,
+            programme=programme,
+            office=office,
             metadata={"callback_url": data.get("callback_url", "")},
         )
 
-    process_analysis.delay(str(run.id), serializer.validated_data)
+    process_analysis.delay(run.id, serializer.validated_data)
 
     return Response(
-        {"run_id": str(run.id), "status": "queued", "eta_seconds": 30},
+        {"run_id": run.id, "status": "queued", "eta_seconds": 30},
         status=status.HTTP_202_ACCEPTED,
     )
 
@@ -87,7 +107,7 @@ def submit_run(request: Request) -> HttpResponse:
 @api_view(["GET"])
 @authentication_classes([APIKeyAuthentication])
 @permission_classes([IsAuthenticated])
-def run_detail(request: Request, run_id: str) -> HttpResponse:
+def run_detail(request: "Request", run_id: str) -> "HttpResponse":
     try:
         run = DetectionRun.objects.get(id=run_id)
     except DetectionRun.DoesNotExist:
@@ -96,13 +116,21 @@ def run_detail(request: Request, run_id: str) -> HttpResponse:
 
 
 @api_view(["GET"])
+@authentication_classes([])
+@permission_classes([])
+def dashboard(request: "Request") -> "HttpResponse":
+    total_programmes = Programme.objects.count()
+    return Response({"programmes": total_programmes})
+
+
+@api_view(["GET"])
 @authentication_classes([APIKeyAuthentication])
 @permission_classes([IsAuthenticated])
-def anomaly_list(request: Request) -> HttpResponse:
-    qs = AnomalyResult.objects.select_related("detection_run", "business_area", "program", "payment_plan")
+def anomaly_list(request: "Request") -> "HttpResponse":
+    qs = AnomalyResult.objects.select_related("detection_run", "office", "programme", "payment_plan")
     run_id = request.query_params.get("run_id")
-    if run_id:
-        qs = qs.filter(detection_run_id=UUID(run_id))
+    if run_id is not None:
+        qs = qs.filter(detection_run_id=int(run_id))
     phase = request.query_params.get("phase")
     if phase:
         qs = qs.filter(phase=phase)
@@ -115,9 +143,9 @@ def anomaly_list(request: Request) -> HttpResponse:
     rule_name = request.query_params.get("rule_name")
     if rule_name:
         qs = qs.filter(rule_name=rule_name)
-    ba_id = request.query_params.get("business_area_id")
-    if ba_id:
-        qs = qs.filter(business_area_id=UUID(ba_id))
+    office_id = request.query_params.get("office_id")
+    if office_id:
+        qs = qs.filter(office__correlation_id=office_id)
     qs = qs.order_by("-created_at")
     page = int(request.query_params.get("page", 1))
     page_size = int(request.query_params.get("page_size", 100))
@@ -131,7 +159,7 @@ def anomaly_list(request: Request) -> HttpResponse:
 @api_view(["PATCH"])
 @authentication_classes([APIKeyAuthentication])
 @permission_classes([IsAuthenticated])
-def anomaly_update(request: Request, anomaly_id: str) -> HttpResponse:
+def anomaly_update(request: "Request", anomaly_id: str) -> "HttpResponse":
     try:
         anomaly = AnomalyResult.objects.get(id=anomaly_id)
     except AnomalyResult.DoesNotExist:
@@ -146,7 +174,7 @@ def anomaly_update(request: Request, anomaly_id: str) -> HttpResponse:
 @api_view(["GET"])
 @authentication_classes([APIKeyAuthentication])
 @permission_classes([IsAuthenticated])
-def stats(request: Request) -> HttpResponse:
+def stats(request: "Request") -> "HttpResponse":
     total_runs = DetectionRun.objects.count()
     total_anomalies = AnomalyResult.objects.count()
     by_severity = dict(
@@ -162,17 +190,3 @@ def stats(request: Request) -> HttpResponse:
         "recent_runs": DetectionRunSerializer(recent_runs, many=True).data,
     }
     return Response(StatSerializer(data).data)
-
-
-@api_view(["GET"])
-@authentication_classes([APIKeyAuthentication])
-@permission_classes([IsAuthenticated])
-def rule_config_list(request: Request) -> HttpResponse:
-    qs = RuleConfig.objects.select_related("business_area", "program", "payment_plan")
-    rule_name = request.query_params.get("rule_name")
-    if rule_name:
-        qs = qs.filter(rule_name=rule_name)
-    scope = request.query_params.get("scope")
-    if scope:
-        qs = qs.filter(scope=scope)
-    return Response(RuleConfigSerializer(qs, many=True).data)

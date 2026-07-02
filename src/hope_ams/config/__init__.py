@@ -1,6 +1,15 @@
+from typing import Any
+
 from smart_env import SmartEnv
 
-CONFIG: dict[str, tuple] = {
+DJANGO_HELP_BASE = "https://docs.djangoproject.com/en/5.0/ref/settings"
+
+
+def setting(anchor: str) -> str:
+    return f"@see {DJANGO_HELP_BASE}#{anchor}"
+
+
+CONFIG: dict[str, tuple[Any, ...]] = {
     "ALLOWED_HOSTS": (
         list,
         [],
@@ -8,7 +17,14 @@ CONFIG: dict[str, tuple] = {
         True,
         "@see https://docs.djangoproject.com/en/5.0/ref/settings/#allowed-hosts",
     ),
-    "AMS_API_KEY": (str, "", "", True, "API key for HOPE to authenticate to AMS"),
+    "AMS_ANY_USER_AUTH_BACKEND": (
+        bool,
+        False,
+        False,
+        False,
+        "Enable AnyUserAuthBackend so admin login works without creating users first",
+    ),
+    "AUTHENTICATION_BACKENDS": (list, [], setting("authentication-backends")),
     "CACHE_URL": (
         str,
         "redis://localhost:6379/0",
@@ -16,10 +32,31 @@ CONFIG: dict[str, tuple] = {
         True,
         "@see https://docs.djangoproject.com/en/5.0/ref/settings/#cache-url",
     ),
-    "CELERY_BROKER_URL": (str, "", "", True, "@see https://docs.celeryq.dev/en/stable/userguide/configuration.html"),
+    "CELERY_BROKER_URL": (
+        str,
+        "",
+        "",
+        True,
+        "@see https://docs.celeryq.dev/en/stable/userguide/configuration.html",
+    ),
     "CELERY_TASK_ALWAYS_EAGER": (bool, False, True, False, ""),
-    "HOPE_CORE_BASE_URL": (str, "", "", True, "Base URL for hope-core API"),
-    "HOPE_CORE_API_TOKEN": (str, "", "", True, "API token for hope-core authentication"),
+    "OLLAMA_BASE_URL": (
+        str,
+        "",
+        "",
+        False,
+        "Base URL for Ollama API (e.g. http://localhost:11434)",
+    ),
+    "OLLAMA_DEFAULT_MODEL": (
+        str,
+        "llama3",
+        "llama3",
+        False,
+        "Default Ollama model to use",
+    ),
+    "OLLAMA_TIMEOUT": (int, 120, 120, False, "Timeout in seconds for Ollama requests"),
+    "HOPE_API_TOKEN": (str, "", "", True, "API token for HOPE to authenticate to AMS"),
+    "HOPE_API_URL": (str, "", "", True, "Base URL for HOPE API"),
     "DATABASE_URL": (
         str,
         SmartEnv.NOTSET,
@@ -27,7 +64,13 @@ CONFIG: dict[str, tuple] = {
         True,
         "@see https://django-environ.readthedocs.io/en/latest/types.html",
     ),
-    "DEBUG": (bool, False, True, False, "@see https://docs.djangoproject.com/en/5.0/ref/settings/#debug"),
+    "DEBUG": (
+        bool,
+        False,
+        True,
+        False,
+        "@see https://docs.djangoproject.com/en/5.0/ref/settings/#debug",
+    ),
     "SECRET_KEY": (
         str,
         "",

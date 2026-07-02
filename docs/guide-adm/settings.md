@@ -17,7 +17,7 @@ All configuration is via environment variables, loaded with `django-environ` + `
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `AMS_API_KEY` | required | Shared secret for API authentication |
+| `HOPE_API_TOKEN` | required | Shared secret for API authentication |
 
 ## Cache & Queue
 

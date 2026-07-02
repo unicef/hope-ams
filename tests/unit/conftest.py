@@ -1,28 +1,25 @@
-from __future__ import annotations
-
 import uuid
 
 import pytest
 
-from hope_ams.detections.models import BusinessArea, PaymentPlan, Program
-
+from hope_ams.models import Office, PaymentPlan, Programme
 
 UUID_BASE = uuid.uuid4()
 
 
-def ba_data(**overrides: dict) -> dict:
+def office_data(**overrides: dict) -> dict:
     return {
         "id": str(UUID_BASE),
-        "name": "Test BA",
-        "slug": "test-ba",
+        "name": "Test Office",
+        "slug": "test-office",
         **overrides,
     }
 
 
-def program_data(**overrides: dict) -> dict:
+def programme_data(**overrides: dict) -> dict:
     return {
         "id": str(UUID_BASE),
-        "name": "Test Program",
+        "name": "Test Programme",
         **overrides,
     }
 
@@ -31,8 +28,8 @@ def pp_data(**overrides: dict) -> dict:
     return {
         "id": str(UUID_BASE),
         "unicef_id": "PP-001",
-        "business_area": ba_data(),
-        "program": program_data(),
+        "office": office_data(),
+        "programme": programme_data(),
         "status": "locked",
         "currency": "USD",
         "total_entitled_quantity": 10000.0,
@@ -129,28 +126,28 @@ def sample_submit_payload(sample_payments: list[dict]) -> dict:
 
 
 @pytest.fixture
-def business_area(db) -> BusinessArea:
-    return BusinessArea.objects.create(
-        id=UUID_BASE,
+def business_area(db) -> Office:
+    return Office.objects.create(
+        correlation_id=UUID_BASE,
         name="Test BA",
         slug="test-ba",
     )
 
 
 @pytest.fixture
-def program(db, business_area: BusinessArea) -> Program:
-    return Program.objects.create(
-        id=UUID_BASE,
+def program(db, business_area: Office) -> Programme:
+    return Programme.objects.create(
+        correlation_id=UUID_BASE,
         name="Test Program",
-        business_area=business_area,
+        office=business_area,
     )
 
 
 @pytest.fixture
-def payment_plan(db, program: Program, business_area: BusinessArea) -> PaymentPlan:
+def payment_plan(db, program: Programme, business_area: Office) -> PaymentPlan:
     return PaymentPlan.objects.create(
-        id=UUID_BASE,
+        correlation_id=UUID_BASE,
         unicef_id="PP-001",
-        program=program,
-        business_area=business_area,
+        programme=program,
+        office=business_area,
     )

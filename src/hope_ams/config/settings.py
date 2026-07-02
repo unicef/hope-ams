@@ -1,9 +1,6 @@
 from pathlib import Path
 
 from . import env
-from .fragments import app
-from .fragments.celery import *  # noqa: F403
-from .fragments.rest_framework import *  # noqa: F403
 
 SETTINGS_DIR = Path(__file__).parent
 PACKAGE_DIR = SETTINGS_DIR.parent
@@ -15,7 +12,21 @@ DATABASES = {
     "default": env.db("DATABASE_URL"),
 }
 
-INSTALLED_APPS = app.INSTALLED_APPS
+INSTALLED_APPS = [
+    "unfold.apps.DefaultAppConfig",
+    "unfold.contrib.filters",
+    "django.contrib.contenttypes",
+    "django.contrib.auth",
+    "django.contrib.messages",
+    "django.contrib.sessions",
+    "django.contrib.staticfiles",
+    "django.contrib.admin",
+    "rest_framework",
+    "admin_extra_buttons",
+    "django_celery_results",
+    "hope_ams.apps.HopeAMSConfig",
+    "hope_ams.api.apps.Config",
+]
 
 MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -31,7 +42,7 @@ ROOT_URLCONF = "hope_ams.config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [PACKAGE_DIR / "web" / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -50,6 +61,13 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
 ]
 
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    *env.list("AUTHENTICATION_BACKENDS"),
+]
+
+AUTH_USER_MODEL = "hope_ams.AMSUser"
+
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = env("TIME_ZONE")
 USE_I18N = True
@@ -67,72 +85,9 @@ CACHES = {
     "default": env.cache("CACHE_URL"),
 }
 
-UNFOLD = {
-    "SITE_TITLE": "Anomaly Management System",
-    "SITE_HEADER": "AMS Admin",
-    "SITE_URL": "/",
-    "SITE_SYMBOL": "shield",
-    "SHOW_HISTORY": True,
-    "SHOW_VIEW_ON_SITE": False,
-    "SIDEBAR": {
-        "show_search": True,
-        "show_all_applications": True,
-        "navigation": [
-            {
-                "title": "Overview",
-                "items": [
-                    {
-                        "title": "Dashboard",
-                        "icon": "dashboard",
-                        "link": "/admin/",
-                    },
-                ],
-            },
-            {
-                "title": "Detection",
-                "items": [
-                    {
-                        "title": "Detection Runs",
-                        "icon": "play_arrow",
-                        "link": "/admin/detections/detectionrun/",
-                    },
-                    {
-                        "title": "Anomaly Results",
-                        "icon": "warning",
-                        "link": "/admin/detections/anomalyresult/",
-                    },
-                ],
-            },
-            {
-                "title": "Reference Data",
-                "items": [
-                    {
-                        "title": "Business Areas",
-                        "icon": "business",
-                        "link": "/admin/detections/businessarea/",
-                    },
-                    {
-                        "title": "Programs",
-                        "icon": "folder",
-                        "link": "/admin/detections/program/",
-                    },
-                    {
-                        "title": "Payment Plans",
-                        "icon": "payments",
-                        "link": "/admin/detections/paymentplan/",
-                    },
-                ],
-            },
-            {
-                "title": "Configuration",
-                "items": [
-                    {
-                        "title": "Rule Configurations",
-                        "icon": "tune",
-                        "link": "/admin/detections/ruleconfig/",
-                    },
-                ],
-            },
-        ],
-    },
-}
+from .fragments.celery import *  # noqa: E402, F403
+from .fragments.hope import *  # noqa: E402, F403
+from .fragments.ollama import *  # noqa: E402, F403
+from .fragments.rest_framework import *  # noqa: E402, F403
+from .fragments.sentry import *  # noqa: E402, F403
+from .fragments.unfold import *  # noqa: E402, F403

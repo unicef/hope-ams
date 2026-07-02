@@ -37,9 +37,9 @@ Logs are sent to stdout/stderr for container environments. Key log sources:
 | Source | Logger | Level |
 |--------|--------|-------|
 | API views | `hope_ams.api` | INFO |
-| Rule execution | `hope_ams.detections.rules` | INFO, ERROR |
-| Celery tasks | `hope_ams.detections.tasks` | INFO, ERROR |
-| Callbacks | `hope_ams.detections.callback` | WARNING |
+| Rule execution | `hope_ams.detection.rules` | INFO, ERROR |
+| Celery tasks | `hope_ams.detection.tasks` | INFO, ERROR |
+| Callbacks | `hope_ams.detection.callback` | WARNING |
 | All | root | WARNING |
 
 ## Database

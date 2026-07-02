@@ -40,7 +40,7 @@ services:
       DEBUG: "true"
       SECRET_KEY: dev-secret-key
       ALLOWED_HOSTS: "*"
-      AMS_API_KEY: dev-ams-api-key
+      HOPE_API_TOKEN: dev-ams-api-key
     depends_on:
       db:
         condition: service_healthy
@@ -57,7 +57,7 @@ services:
       CELERY_TASK_ALWAYS_EAGER: "false"
       DEBUG: "false"
       SECRET_KEY: dev-secret-key
-      AMS_API_KEY: dev-ams-api-key
+      HOPE_API_TOKEN: dev-ams-api-key
     depends_on:
       db:
         condition: service_healthy

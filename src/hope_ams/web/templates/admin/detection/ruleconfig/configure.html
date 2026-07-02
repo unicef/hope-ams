@@ -1,0 +1,29 @@
+{% extends "admin_extra_buttons/action_page.html" %}
+{% load i18n %}
+{% block extrahead %}
+    {{ block.super }}
+    {{ adminform.media }}
+{% endblock %}
+{% block content %}
+    <h1 class="text-xl font-medium">{{ original.name }} ({{ original.rule }})</h1>
+    {% if adminform %}
+        {{ adminform.form.non_field_errors }}
+        <form method="post" id="config-form">
+            {% csrf_token %}
+            {% for fieldset in adminform %}
+                {% include "admin/includes/fieldset.html" %}
+            {% endfor %}
+            <div id="submit-row" class="flex">
+                <input type="submit"
+                       value="{% trans 'Save' %}"
+                       class="button button-primary mx-2" />
+                <a class="button" href="..">{% trans 'Back' %}</a>
+            </div>
+        </form>
+    {% else %}
+        <div class="text-center text-xl p-5">{% trans "This rule does not need configuration" %}</div>
+        <div class="flex">
+            <a class="button m-auto" href="..">{% trans 'Back' %}</a>
+        </div>
+    {% endif %}
+{% endblock %}

@@ -4,18 +4,18 @@ Run **before** payment disbursement, on pending/frozen data.
 
 | Rule | Severity | Description |
 |------|----------|-------------|
-| `child_head_of_household` | high | Detects households where the head is under 18 |
-| `unrealistic_age` | critical | Detects individuals with birth dates implying age > 120 or negative age |
-| `pregnant_child` | critical | Detects children (under 18) marked as pregnant |
-| `no_working_age_adults` | medium | Detects households with no adults aged 18-60 |
-| `excessive_household_size` | medium | Detects households exceeding maximum size (configurable, default 20) |
-| `zero_entitlement_not_excluded` | high | Detects payments with zero entitlement that are not excluded |
-| `missing_collector` | high | Detects payments with no primary or alternate collector |
-| `collector_equals_beneficiary` | medium | Detects cases where collector and beneficiary are the same person |
-| `phone_number_reuse` | high | Detects phone numbers shared across multiple individuals |
-| `document_cross_program` | high | Detects same document used across different programs |
-| `same_wallet_multiple_households` | high | Detects wallet addresses shared across multiple households |
-| `same_address_different_heads` | medium | Detects same address with different heads of household |
-| `sanction_list_cross_ref` | critical | Detects individuals with sanction list matches |
-| `estimated_birth_date_mismatch` | medium | Detects inconsistencies in estimated birth dates |
-| `entitlement_outlier` | medium | Detects entitlement amounts outside expected range |
+| `child_head_of_household` | high | Head of household is under 18 years old |
+| `unrealistic_age` | critical | Individual has an unrealistic age (>110 or birth date in the future) |
+| `pregnant_child` | critical | Individual is marked as pregnant but age is outside expected childbearing range |
+| `no_working_age_adults` | high | Household has no working-age adults (18-59) with more than 3 children |
+| `excessive_household_size` | medium | Household size exceeds configured maximum |
+| `zero_entitlement_not_excluded` | high | Payment has zero entitlement but household is not marked as excluded |
+| `missing_collector` | high | Household has no PRIMARY or ALTERNATE collector assigned |
+| `collector_equals_beneficiary` | low | The payment collector is the same person as the head of household (potential conflict of interest flag) |
+| `phone_number_reuse` | high | Same phone number used across different households in the same payment plan |
+| `document_cross_program` | medium | Same identity document number used by different individuals within the payment plan |
+| `same_wallet_multiple_households` | critical | Same wallet address used across different households |
+| `same_address_different_heads` | medium | Multiple households share the same address but have different heads |
+| `sanction_list_cross_ref` | critical | Individual has a confirmed sanction list match |
+| `estimated_birth_date_mismatch` | medium | Birth date is estimated and age_at_registration doesn't match the calculated age from birth date |
+| `entitlement_outlier` | medium | Payment entitlement quantity deviates significantly from the mean (outside N standard deviations) |

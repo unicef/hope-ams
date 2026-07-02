@@ -1,0 +1,9 @@
+from .anomaly_result import AnomalyResultAdmin  # noqa: F401
+from .detection_run import DetectionRunAdmin  # noqa: F401
+from .office import OfficeAdmin  # noqa: F401
+from .payment_plan import PaymentPlanAdmin  # noqa: F401
+from .program import ProgrammeAdmin  # noqa: F401
+from .programme_rule_configuration import ProgrammeRuleConfigurationAdmin  # noqa: F401
+from .rule_config import RuleConfigAdmin  # noqa: F401
+from .user import AMSUserAdmin  # noqa: F401
+from .user_role import UserRoleAdmin  # noqa: F401

@@ -44,7 +44,7 @@ config = {
 
 ## Admin management
 
-RuleConfig records can be created via the Django admin interface at `/admin/detections/ruleconfig/`.
+RuleConfig records can be created via the Django admin interface at `/admin/detection/ruleconfig/`.
 
 Available scopes:
 

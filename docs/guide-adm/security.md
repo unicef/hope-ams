@@ -5,10 +5,10 @@
 All API endpoints are protected with Bearer token authentication.
 
 ```http
-Authorization: Bearer <AMS_API_KEY>
+Authorization: Bearer <HOPE_API_TOKEN>
 ```
 
-The `AMS_API_KEY` is configured via environment variable. There is no user model — the key is validated against the configured value.
+The `HOPE_API_TOKEN` is configured via environment variable. There is no user model — the key is validated against the configured value.
 
 ## Network model
 
@@ -30,7 +30,7 @@ sequenceDiagram
 
 ## Recommendations
 
-1. Store `AMS_API_KEY` in a secure vault (e.g. Azure Key Vault, AWS Secrets Manager)
+1. Store `HOPE_API_TOKEN` in a secure vault (e.g. Azure Key Vault, AWS Secrets Manager)
 2. Use separate API keys per environment
 3. Deploy AMS within the same virtual network as HOPE (or use HTTPS + firewall rules)
 4. The callback URL should be a HOPE endpoint that validates the origin

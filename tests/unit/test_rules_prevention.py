@@ -1,116 +1,140 @@
-from __future__ import annotations
+import json
 
-from datetime import UTC, datetime, timedelta
+import pytest
 
-from hope_ams.detections.rules.base import RuleContext
-from hope_ams.detections.rules.prevention.unrealistic_age import UnrealisticAgeRule
-from hope_ams.detections.rules.prevention.pregnant_child import PregnantChildRule
-from hope_ams.detections.rules.prevention.child_head_of_household import ChildHeadOfHouseholdRule
-from hope_ams.detections.rules.prevention.missing_collector import MissingCollectorRule
-from hope_ams.detections.rules.prevention.zero_entitlement_not_excluded import ZeroEntitlementNotExcludedRule
-from hope_ams.detections.rules.prevention.excessive_household_size import ExcessiveHouseholdSizeRule
-
+from hope_ams.detection.rules.base import RuleContext
+from hope_ams.detection.rules.base_llm import BaseLLMRule
+from hope_ams.detection.rules.prevention.llm_sanity_check import LLMSanityCheckRule
+from hope_ams.detection.rules.prevention.pregnant_child import PregnantChildRule
+from hope_ams.detection.rules.prevention.too_young_pregnant import TooYoungPregnantRule
 from tests.unit.conftest import pp_data
 
 
-def _ctx(payments: list[dict], **cfg: dict) -> RuleContext:
+def _ctx(payments: list[dict]) -> RuleContext:
     return RuleContext(
         phase="prevention",
         payment_plan=pp_data(),
         payments=payments,
-        config=cfg,
+        config={},
     )
 
 
-class TestUnrealisticAgeRule:
-    def test_no_issue(self, sample_payment: dict) -> None:
-        findings = UnrealisticAgeRule().evaluate(_ctx([sample_payment]))
-        assert len(findings) == 0
-
-    def test_future_birth_date(self, sample_payment: dict) -> None:
-        future = (datetime.now(UTC).date() + timedelta(days=365)).isoformat()
-        ind = sample_payment["snapshot_data"]["individuals"][0]
-        ind["birth_date"] = future
-        findings = UnrealisticAgeRule().evaluate(_ctx([sample_payment]))
-        assert len(findings) == 1
-        assert findings[0].severity == "critical"
-
-    def test_age_over_max(self, sample_payment: dict) -> None:
-        ind = sample_payment["snapshot_data"]["individuals"][0]
-        ind["birth_date"] = "1800-01-01"
-        findings = UnrealisticAgeRule().evaluate(_ctx([sample_payment]))
-        assert len(findings) == 1
-        assert "exceeds maximum" in findings[0].title
-
-    def test_configurable_max_age(self, sample_payment: dict) -> None:
-        config = {"rules": {"unrealistic_age": {"config": {"max_age": 30}}}}
-        ind = sample_payment["snapshot_data"]["individuals"][0]
-        ind["birth_date"] = "1985-06-10"
-        findings = UnrealisticAgeRule().evaluate(_ctx([sample_payment], **config))
-        assert len(findings) >= 1
+# Tests for TestDataChangedAfterApprovalRule (renamed from TestPregnantChildRule in class)
 
 
-class TestPregnantChildRule:
-    def test_no_issue(self, sample_payment: dict) -> None:
-        findings = PregnantChildRule().evaluate(_ctx([sample_payment]))
-        assert len(findings) == 0
-
-    def test_pregnant_child(self, sample_payment: dict) -> None:
-        ind = sample_payment["snapshot_data"]["individuals"][1]
-        ind["pregnant"] = True
-        ind["birth_date"] = "2020-01-01"
-        findings = PregnantChildRule().evaluate(_ctx([sample_payment]))
-        assert len(findings) == 1
-        assert findings[0].severity == "critical"
+def test_no_issue(sample_payment: dict) -> None:
+    findings = PregnantChildRule().evaluate(_ctx([sample_payment]))
+    assert len(findings) == 0
 
 
-class TestChildHeadOfHouseholdRule:
-    def test_no_issue(self, sample_payment: dict) -> None:
-        findings = ChildHeadOfHouseholdRule().evaluate(_ctx([sample_payment]))
-        assert len(findings) == 0
-
-    def test_child_head(self, sample_payment: dict) -> None:
-        ind = sample_payment["snapshot_data"]["individuals"][0]
-        ind["birth_date"] = "2010-01-01"
-        ind["relationship"] = "HEAD"
-        findings = ChildHeadOfHouseholdRule().evaluate(_ctx([sample_payment]))
-        assert len(findings) == 1
-        assert findings[0].severity == "high"
+def test_pregnant_age_below_min(sample_payment: dict) -> None:
+    ind = sample_payment["snapshot_data"]["individuals"][1]
+    ind["pregnant"] = True
+    ind["birth_date"] = "2020-01-01"
+    findings = PregnantChildRule().evaluate(_ctx([sample_payment]))
+    assert len(findings) == 1
+    assert findings[0].severity == "critical"
 
 
-class TestMissingCollectorRule:
-    def test_no_issue(self, sample_payment: dict) -> None:
-        findings = MissingCollectorRule().evaluate(_ctx([sample_payment]))
-        assert len(findings) == 0
-
-    def test_no_collector(self, sample_payment: dict) -> None:
-        p = dict(sample_payment)
-        p["snapshot_data"] = dict(sample_payment["snapshot_data"])
-        del p["snapshot_data"]["primary_collector"]
-        findings = MissingCollectorRule().evaluate(_ctx([p]))
-        assert len(findings) >= 1
+def test_pregnant_age_above_max(sample_payment: dict) -> None:
+    ind = sample_payment["snapshot_data"]["individuals"][0]
+    ind["pregnant"] = True
+    ind["birth_date"] = "1960-01-01"
+    findings = PregnantChildRule().evaluate(_ctx([sample_payment]))
+    assert len(findings) == 1
+    assert findings[0].severity == "critical"
 
 
-class TestZeroEntitlementNotExcludedRule:
-    def test_no_issue(self, sample_payment: dict) -> None:
-        findings = ZeroEntitlementNotExcludedRule().evaluate(_ctx([sample_payment]))
-        assert len(findings) == 0
-
-    def test_zero_entitlement_not_excluded(self, sample_payment: dict) -> None:
-        sample_payment["entitlement_quantity"] = 0
-        sample_payment["excluded"] = False
-        findings = ZeroEntitlementNotExcludedRule().evaluate(_ctx([sample_payment]))
-        assert len(findings) == 1
-        assert findings[0].severity == "high"
+def test_pregnant_age_in_range(sample_payment: dict) -> None:
+    ind = sample_payment["snapshot_data"]["individuals"][0]
+    ind["pregnant"] = True
+    ind["birth_date"] = "1990-01-01"
+    findings = PregnantChildRule().evaluate(_ctx([sample_payment]))
+    assert len(findings) == 0
 
 
-class TestExcessiveHouseholdSizeRule:
-    def test_no_issue(self, sample_payment: dict) -> None:
-        findings = ExcessiveHouseholdSizeRule().evaluate(_ctx([sample_payment]))
-        assert len(findings) == 0
+def test_build_prompt(sample_payment: dict) -> None:
+    payment_with_str_id = {**sample_payment, "id": str(sample_payment["id"])}
+    ctx = _ctx([payment_with_str_id])
+    rule = LLMSanityCheckRule()
+    prompt = rule.build_prompt(ctx)
 
-    def test_excessive_size(self, sample_payment: dict) -> None:
-        sample_payment["snapshot_data"]["size"] = 50
-        findings = ExcessiveHouseholdSizeRule().evaluate(_ctx([sample_payment]))
-        assert len(findings) == 1
-        assert findings[0].severity == "medium"
+    assert "payments from payment plan" in prompt
+    assert "individuals" in prompt
+
+
+def test_parse_response(sample_payment: dict) -> None:
+    mock_findings = [
+        {
+            "severity": "high",
+            "title": "Suspicious pattern",
+            "description": "Found something",
+            "object_type": "household",
+            "object_id": str(sample_payment["household_id"]),
+        }
+    ]
+    response = json.dumps({"findings": mock_findings})
+
+    rule = LLMSanityCheckRule()
+    findings = rule.parse_response(response)
+
+    assert len(findings) == 1
+    assert findings[0].severity == "high"
+    assert findings[0].title == "Suspicious pattern"
+
+
+def test_parse_empty_response() -> None:
+    response = json.dumps({"findings": []})
+
+    rule = LLMSanityCheckRule()
+    findings = rule.parse_response(response)
+
+    assert len(findings) == 0
+
+
+def test_is_llm_subclass() -> None:
+    rule = LLMSanityCheckRule()
+    assert isinstance(rule, BaseLLMRule)
+
+
+def test_rule_attributes() -> None:
+    rule = LLMSanityCheckRule()
+    assert rule.name == "llm_sanity_check"
+    assert rule.phase == "prevention"
+    assert rule.default_severity == "medium"
+    assert rule.system_prompt is not None
+
+
+def test_no_issue_too_young_pregnant(sample_payment: dict) -> None:
+    findings = TooYoungPregnantRule().evaluate(_ctx([sample_payment]))
+    assert len(findings) == 0
+
+
+def test_pregnant_under_min_age(sample_payment: dict) -> None:
+    ind = sample_payment["snapshot_data"]["individuals"][0]
+    ind["pregnant"] = True
+    ind["birth_date"] = "2022-06-01"
+    findings = TooYoungPregnantRule().evaluate(_ctx([sample_payment]))
+    assert len(findings) == 1
+    assert findings[0].severity == "critical"
+    assert "below minimum age" in findings[0].title
+
+
+def test_pregnant_at_min_age(sample_payment: dict) -> None:
+    ind = sample_payment["snapshot_data"]["individuals"][0]
+    ind["pregnant"] = True
+    ind["birth_date"] = "2010-06-01"
+    findings = TooYoungPregnantRule().evaluate(_ctx([sample_payment]))
+    assert len(findings) == 0
+
+
+def test_not_pregnant_ignored(sample_payment: dict) -> None:
+    ind = sample_payment["snapshot_data"]["individuals"][1]
+    ind["pregnant"] = False
+    ind["birth_date"] = "2022-01-01"
+    findings = TooYoungPregnantRule().evaluate(_ctx([sample_payment]))
+    assert len(findings) == 0
+
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

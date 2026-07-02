@@ -1,6 +1,6 @@
 # API
 
-All API endpoints require authentication via `Authorization: Bearer <AMS_API_KEY>` header.
+All API endpoints require authentication via `Authorization: Bearer <HOPE_API_TOKEN>` header.
 
 ## Endpoints
 
@@ -11,4 +11,3 @@ All API endpoints require authentication via `Authorization: Bearer <AMS_API_KEY
 | `GET` | `/api/anomalies/` | List/query anomaly findings |
 | `PATCH` | `/api/anomalies/{id}/` | Update anomaly status |
 | `GET` | `/api/stats/` | Dashboard statistics |
-| `GET` | `/api/rules/` | List rule configurations |

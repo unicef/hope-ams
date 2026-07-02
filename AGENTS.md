@@ -2,81 +2,40 @@
 
 AMS is a standalone Django microservice that performs **rule-based anomaly detection** on HOPE payment data. It has zero access to HOPE databases — all data is pushed via API payload.
 
-1. **[.ai/standards.md](.ai/standards.md):** Environment setup, Python/Django conventions, linting, and type safety rules.
-2. **[.ai/architecture.md](.ai/architecture.md):** Project layout, code structure, and import patterns.
-3. **[.ai/workflow.md](.ai/workflow.md):** Coding rules.
-4. **[.ai/safety.md](.ai/safety.md):** Secret management, git safety, and data privacy rules.
-5. **[.ai/testing-patterns.md](.ai/testing-patterns.md):** Test factories, fixtures, markers, and coverage rules.
-6. **[.ai/dispatchers.md](.ai/dispatchers.md):** Dispatcher implementation and testing guidelines.
-
-All `.ai/` files are the single source of truth for their respective domains. Do not duplicate this content in other instruction files.
+Python 3.14 · uv + tox · Django · DRF · Celery · PostgreSQL · Redis
 
 ## Quick start
 
 ```bash
 uv sync --frozen
-cp .envrc .envrc && direnv allow
+cp .envrc .envrc && direnv allow       # .envrc already provides defaults
 uv run python manage.py migrate
-uv run python manage.py runserver
+uv run python manage.py runserver      # runs on 0.0.0.0:8000
 ```
 
-## Docker
+**Compose mode** (db + redis + app + celery pre-wired):
 
 ```bash
-# Build
-docker build -f docker/Dockerfile --target dist -t hope-ams .
-
-# Run (uwsgi)
-docker run -e DATABASE_URL=... -e SECRET_KEY=... hope-ams
-
-# Run (dev server)
-docker run -e ... hope-ams dev
-
-# Run (celery worker)
-docker run -e ... hope-ams worker
-
-# Run tests
-docker build -f docker/Dockerfile --target tests -t hope-ams-tests .
-docker run --network host -v ./src:/app/src -v ./tests:/app/tests hope-ams-tests \
-  pytest tests -q
+docker compose up --build
 ```
+Ports: PostgreSQL 5433, Redis 6380, app 8000.
 
-## Commands
+## Code conventions
 
-| what | command |
-|---|---|
-| lint | `tox -e lint` |
-| typecheck | `tox -e mypy` |
-| tests | `uv run tox -e tests -- pytest tests -q` |
-| migrate | `uv run python manage.py migrate` |
-| shell | `uv run python manage.py shell` |
-| docs (dev) | `uv sync --group docs && zensical serve` |
-| docs (build) | `uv sync --group docs && zensical build` |
+Check `.ai` folder for further requirements, specifications and directives.
 
 ## Architecture
 
 - **Package**: `hope_ams`, source in `src/hope_ams/`
-- **Settings**: `hope_ams.config.settings` with `SmartEnv` + fragments
-- **Celery**: `hope_ams.config.celery` app
+- **Settings**: `hope_ams.config.settings` — uses `django-smart-env` + fragment loading
+- **Celery**: `hope_ams.config.celery` app (schedule managed via `django-celery-beat`)
 - **API**: DRF views at `hope_ams.api.views`
-- **Detections**: Core domain in `hope_ams.detections`
+- **Detections**: Core domain in `hope_ams.detection`
+- **Build**: hatchling, version from git (`hatch-vcs`), package = `src/hope_ams`
 
-## Rule structure
+## Rule engine
 
 Each rule is a class inheriting `BaseRule` with `evaluate(RuleContext) -> list[Finding]`.
-Rules auto-register via `registry.register()` in `__init__.py`.
+Rules auto-register via `registry.register()` in their module's `__init__.py`.
 
-## CI/CD
-
-| Workflow | Trigger | Jobs |
-|----------|---------|------|
-| `ci-pr.yml` | PR → develop/main | lint + mypy + tests |
-| `ci-cd.yml` | Push → develop/main | lint → tests → sdlc-push |
-| `sdlc-push.yml` | Push → **any** | Buildx + push to Docker Hub |
-| `sdlc-version-create.yml` | Tag semver | Buildx + push with version tag |
-| `release.yml` | GitHub Release | Buildx stage=dist + push |
-| `docs.yml` | Push develop + schedule | Zensical build → GitHub Pages |
-
-**Key vars/secrets needed:**
-- `secrets.DOCKERHUB_USERNAME` / `secrets.DOCKERHUB_TOKEN` — Docker Hub login
-- `secrets.DOCKERHUB_ORGANIZATION` (vars) — Docker Hub org (default: `unicef`)
+Two flows: **Analyse** (pre-payment anomaly detection) and **Detect** (post-payment).

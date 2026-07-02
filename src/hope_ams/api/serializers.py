@@ -1,19 +1,18 @@
 from rest_framework import serializers
 
-from hope_ams.detections.models import (
+from hope_ams.models import (
     AnomalyResult,
     DetectionRun,
-    RuleConfig,
 )
 
 
-class BusinessAreaItemSerializer(serializers.Serializer):
+class OfficeItemSerializer(serializers.Serializer):
     id = serializers.UUIDField()
     name = serializers.CharField()
     slug = serializers.CharField()
 
 
-class ProgramItemSerializer(serializers.Serializer):
+class ProgrammeItemSerializer(serializers.Serializer):
     id = serializers.UUIDField()
     name = serializers.CharField()
 
@@ -50,8 +49,8 @@ class PaymentItemSerializer(serializers.Serializer):
 class PaymentPlanItemSerializer(serializers.Serializer):
     id = serializers.UUIDField()
     unicef_id = serializers.CharField(required=False, default="")
-    business_area = BusinessAreaItemSerializer()
-    program = ProgramItemSerializer()
+    office = OfficeItemSerializer()
+    programme = ProgrammeItemSerializer()
     status = serializers.CharField(required=False, default="")
     dispersion_start_date = serializers.CharField(required=False, default="")
     currency = serializers.CharField(required=False, default="")
@@ -69,13 +68,11 @@ class SubmitRunSerializer(serializers.Serializer):
     config = serializers.JSONField(required=False, default=dict)
 
 
-class RuleConfigSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = RuleConfig
-        fields = ["id", "rule_name", "enabled", "config", "scope", "business_area", "program", "payment_plan"]
-
-
 class DetectionRunSerializer(serializers.ModelSerializer):
+    office_correlation_id = serializers.UUIDField(source="office.correlation_id", read_only=True)
+    programme_correlation_id = serializers.UUIDField(source="programme.correlation_id", read_only=True)
+    payment_plan_correlation_id = serializers.UUIDField(source="payment_plan.correlation_id", read_only=True)
+
     class Meta:
         model = DetectionRun
         fields = [
@@ -84,8 +81,11 @@ class DetectionRunSerializer(serializers.ModelSerializer):
             "trigger",
             "status",
             "payment_plan",
-            "program",
-            "business_area",
+            "programme",
+            "office",
+            "office_correlation_id",
+            "programme_correlation_id",
+            "payment_plan_correlation_id",
             "rules_executed",
             "anomalies_found",
             "started_at",
@@ -95,6 +95,10 @@ class DetectionRunSerializer(serializers.ModelSerializer):
 
 
 class AnomalyResultListSerializer(serializers.ModelSerializer):
+    office_correlation_id = serializers.UUIDField(source="office.correlation_id", read_only=True)
+    programme_correlation_id = serializers.UUIDField(source="programme.correlation_id", read_only=True)
+    payment_plan_correlation_id = serializers.UUIDField(source="payment_plan.correlation_id", read_only=True)
+
     class Meta:
         model = AnomalyResult
         fields = [
@@ -106,9 +110,12 @@ class AnomalyResultListSerializer(serializers.ModelSerializer):
             "status",
             "title",
             "description",
-            "business_area",
-            "program",
+            "office",
+            "programme",
             "payment_plan",
+            "office_correlation_id",
+            "programme_correlation_id",
+            "payment_plan_correlation_id",
             "object_type",
             "object_id",
             "object_unicef_id",

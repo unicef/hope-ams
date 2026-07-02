@@ -1,63 +1,43 @@
 # HOPE Anomaly Management System (AMS)
 
-Standalone Django microservice for rule-based anomaly detection on HOPE payment data.
+Standalone Django service for rule-based anomaly detection on HOPE payment data.
 
-## Quick start
+📖 [Documentation](https://unicef.github.io/hope-ams) · [Contributing](CONTRIBUTING.md)
 
-```bash
-uv sync --frozen
-uv run python manage.py env --develop --format 'export {key}={value}' > .envrc
-# edit .envrc — fill in secrets (DB_URL, API keys, …)
-direnv allow
-uv run python manage.py migrate
-uv run python manage.py runserver
-```
 
-## Configuration
+## Components
 
-Environment variables are managed via [`django-smart-env`](https://github.com/unicef/django-smart-env).
-All variables are declared as 5-tuples in [`src/hope_ams/config/__init__.py`](src/hope_ams/config/__init__.py):
+### Input
 
-    (cast, default, develop_value, is_explicit, help_text)
+| Component | Description  	                                                  |
+|-------|-----------------------------------------------------------------|
+| Office| Represents UNICEF Country Office,equivalent of HOPE BusinesArea |
+| Programme	 | Assistance Programme, same as in HOPE  	                        |
+| PaymentPlan	 | Frozen/Serialized HOPE PaymentPlan  	                           |
 
-Variables marked **explicit** are required — Django's `check` framework raises `smart_env.E001` if they are missing.
 
-### Bootstrap your `.envrc`
+### Engine
 
-Instead of maintaining a `.envrc.example` by hand, generate the skeleton from the config itself:
+| Component    | Description  	                            |
+|--------------|-------------------------------------------|
+| Rule         | Logic used to analyse data                |
+| RuleConfig	  | Rule configuration, thresholds etc.  	    |
+| ProgramRuleConfiguration	 | Custom RuleConfig for specific Programme	 |
 
-```bash
-uv run python manage.py env --develop --format 'export {key}={value}' > .envrc
-```
 
-Then edit `.envrc` to fill in private values (`AMS_API_KEY`, `DATABASE_URL`, `SENTRY_DSN`, …),
-run `direnv allow` to load them, and verify with `uv run python manage.py env --check`.
+## Scope
 
-### Useful commands
+Anomalies can be performed against PaymentPlan (and included Beneficiaries), or at Household (only) level. Each rule is designed to receive PaymentPlan or Household informations.
 
-| Command | What it does |
-|---|---|
-| `python manage.py env --check` | List any missing required (explicit) env vars |
-| `python manage.py env --develop` | Dump all vars with their development defaults |
-| `python manage.py env --changed` | Show vars whose current value differs from production default |
-| `python manage.py env` | Print all vars with their current/resolved values |
 
-## Two branches
+## Flows
 
-| Branch | When | What it checks |
-|---|---|---|
-| **Prevention** | Pre-payment (PP → OPEN/LOCKED/ACCEPTED) | Data quality, duplicates, entitlements |
-| **Detection** | Post-reconciliation (PP → FINISHED) | Payment outliers, fraud patterns |
+AMS has two different flows, each pre (analyse) and post (detect) payment.
 
-## Flow
+### Analyse
 
-```
-HOPE ──POST /api/run/──→ AMS ──callback──→ HOPE ──GET /api/anomalies/──→ AMS
-```
+Analyse flow aims to detect anomalies BEFORE payment is executed to find data mismatch or anomalies in the beneficiary data
 
-## Architecture
+### Detect
 
-- No database access to HOPE (all data pushed via API)
-- Rule config hierarchy: Global → BusinessArea → Program → PaymentPlan
-- Auth: Static API key (`Authorization: Bearer <key>`)
-- Frontend: Django admin + template views
+Detect flow uses payment information to search for anomalies (es. amount mismatch, excessive amount ....)

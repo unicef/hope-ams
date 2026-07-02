@@ -5,7 +5,9 @@ from django.utils.translation import gettext as _
 class TestModel(models.Model):
     # OK: Correct order
     # ok: django-field-attribute-order
-    name = models.CharField(verbose_name="Name", max_length=100, blank=True, help_text="Enter full name")
+    name = models.CharField(
+        verbose_name="Name", max_length=100, blank=True, help_text="Enter full name"
+    )
 
     # ok: django-field-attribute-order
     user = models.ForeignKey(

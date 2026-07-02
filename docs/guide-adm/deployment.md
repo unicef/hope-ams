@@ -48,6 +48,6 @@ SECRET_KEY=<random-secret>
 DATABASE_URL=postgres://user:pass@host:5432/ams
 CACHE_URL=redis://host:6379/0
 CELERY_BROKER_URL=redis://host:6379/0
-AMS_API_KEY=<shared-secret>
+HOPE_API_TOKEN=<shared-secret>
 ALLOWED_HOSTS=ams.unicef.org
 ```

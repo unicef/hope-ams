@@ -4,7 +4,7 @@ Triggers anomaly detection on a PaymentPlan. Data is pushed by HOPE via API payl
 
 ## Request
 
-Authentication: `Authorization: Bearer <AMS_API_KEY>`
+Authentication: `Authorization: Bearer <HOPE_API_TOKEN>`
 
 ```json
 {

@@ -4,8 +4,8 @@
 
 Create a new file in the appropriate directory:
 
-- Prevention: `src/hope_ams/detections/rules/prevention/<rule_name>.py`
-- Detection: `src/hope_ams/detections/rules/detection/<rule_name>.py`
+- Prevention: `src/hope_ams/detection/rules/prevention/<rule_name>.py`
+- Detection: `src/hope_ams/detection/rules/detection/<rule_name>.py`
 
 ## Step 2: Implement the rule
 
@@ -14,16 +14,16 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from hope_ams.detections.rules.base import BaseRule, Finding, RuleContext
+from hope_ams.detection.rules.base import BaseRule, Finding, RuleContext
 
 
 class MyNewRule(BaseRule):
-    name = "my_new_rule"                        # Unique identifier
-    branch = "prevention"                       # or "detection"
-    description = "Detects something important" # Human-readable description
-    default_severity = "high"                   # low | medium | high | critical
+    name = "my_new_rule"  # Unique identifier
+    branch = "prevention"  # or "detection"
+    description = "Detects something important"  # Human-readable description
+    default_severity = "high"  # low | medium | high | critical
     default_config = {
-        "max_threshold": 10,                    # Configurable parameters
+        "max_threshold": 10,  # Configurable parameters
         "min_threshold": 0,
     }
 
@@ -59,8 +59,8 @@ class MyNewRule(BaseRule):
 
 Add an import in the branch's `__init__.py`:
 
-- Prevention: `src/hope_ams/detections/rules/prevention/__init__.py`
-- Detection: `src/hope_ams/detections/rules/detection/__init__.py`
+- Prevention: `src/hope_ams/detection/rules/prevention/__init__.py`
+- Detection: `src/hope_ams/detection/rules/detection/__init__.py`
 
 ```python
 from .my_new_rule import MyNewRule
@@ -76,7 +76,7 @@ Create or add to the test file:
 # tests/unit/test_rules_prevention.py
 
 def test_my_new_rule(sample_payment: dict) -> None:
-    from hope_ams.detections.rules.prevention.my_new_rule import MyNewRule
+    from hope_ams.detection.rules.prevention.my_new_rule import MyNewRule
 
     ctx = RuleContext(
         branch="prevention",

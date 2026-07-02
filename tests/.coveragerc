@@ -1,0 +1,37 @@
+[run]
+source = src
+source_pkgs = hope_ams
+branch = True
+concurrency = thread, multiprocessing
+omit =
+    **/migrations/**
+    **/management/commands/**
+    src/hope_ams/config/**
+    src/hope_ams/wsgi.py
+
+[report]
+exclude_also =
+    pragma: no cover
+    pragma: no-cover
+    def __repr__
+    pass
+    if settings.DEBUG:
+    if DEBUG
+    if typing.TYPE_CHECKING:
+    if TYPE_CHECKING:
+    if __name__ == .__main__.:
+    if SENTRY_ENABLED
+    if self\.debug
+    raise CommandError.*
+    self.halt\(.*
+    @abc.abstractmethod
+    @abstractmethod
+
+show_missing = true
+fail_under = 65
+precision = 2
+ignore_errors = True
+skip_covered = True
+
+[html]
+directory = ./~build/coverage

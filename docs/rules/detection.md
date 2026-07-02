@@ -4,18 +4,18 @@ Run **after** payment reconciliation, with delivery and verification data.
 
 | Rule | Severity | Description |
 |------|----------|-------------|
-| `delivered_vs_received_mismatch` | high | Detects discrepancies between delivered amount and verified received amount |
-| `duplicate_payment_same_cycle` | critical | Detects same household receiving multiple payments in the same cycle |
-| `reconciliation_overdue` | medium | Detects payments past their reconciliation window |
-| `pending_payment_stale` | medium | Detects payments stuck in pending status beyond threshold |
-| `unusual_payment_timing` | low | Detects payments made at unusual times (e.g. weekends, holidays) |
-| `fsp_high_failure_rate` | high | Detects Financial Service Providers with unusually high failure rates |
-| `data_changed_after_approval` | critical | Detects household data changes after payment plan approval |
-| `payment_amount_hh_size_mismatch` | medium | Detects payments where amount doesn't match household size |
-| `partial_delivery_pattern` | medium | Detects patterns of partial deliveries in an area |
-| `withdrawn_hh_in_active_plan` | critical | Detects withdrawn households still active in a payment plan |
-| `empty_household_active` | high | Detects active households with zero members |
-| `distributed_but_not_delivered` | high | Detects payments marked as distributed but not delivered |
-| `registration_date_anomaly` | low | Detects unusual registration date patterns |
-| `unrealistic_sex_ratio` | medium | Detects households with unrealistic male/female ratios |
-| `pwd_prevalence_outlier` | low | Detects households with unusually high/low disability prevalence |
+| `delivered_vs_received_mismatch` | high | The delivered quantity differs from the received amount reported in payment verification |
+| `duplicate_payment_same_cycle` | critical | Same household has multiple successful payments in the same payment plan cycle |
+| `reconciliation_overdue` | high | Payment plan is in ACCEPTED status past its reconciliation window |
+| `pending_payment_stale` | medium | Payment has been in a pending status for longer than the configured threshold |
+| `unusual_payment_timing` | low | Payment delivery date is significantly outside the normal distribution |
+| `fsp_high_failure_rate` | high | A Financial Service Provider has a high proportion of failed/undelivered payments |
+| `data_changed_after_approval` | critical | Current household data differs from the frozen snapshot data (requires HOPE to provide current data) |
+| `payment_amount_hh_size_mismatch` | medium | Per-capita payment amount deviates significantly from expected |
+| `partial_delivery_pattern` | low | Systematic partial deliveries to households in the same admin area |
+| `withdrawn_hh_in_active_plan` | critical | A withdrawn household appears in an active (non-FINISHED/CLOSED) payment plan |
+| `empty_household_active` | high | Household has zero members but appears in an active payment plan |
+| `distributed_but_not_delivered` | high | Payment has a SUCCESS status but delivered_quantity is zero or null |
+| `registration_date_anomaly` | medium | Program registration date is before the registration data import creation date |
+| `unrealistic_sex_ratio` | medium | An admin area within the payment plan has an extreme male/female ratio |
+| `pwd_prevalence_outlier` | low | Prevalence of Persons with Disabilities (PwD) differs significantly from the expected rate |

@@ -1,6 +1,4 @@
-from __future__ import annotations
-
-from hope_ams.detections.callback import notify_hope
+from hope_ams.detection.callback import notify_hope
 
 
 def test_notify_hope_success(requests_mock) -> None:
