@@ -4,14 +4,14 @@ from unittest.mock import patch
 import pytest
 from django_webtest import DjangoTestApp
 
-from tests.unit.conftest import pp_data
+from tests._extras.testutils.factories import PlanPayloadFactory, RunPayloadFactory
 
 
 @patch("hope_ams.api.views.process_analysis.delay")
 def test_submit_prevention(mock_delay, client, db) -> None:
     response = client.post_json(
         "/api/run/",
-        _payload("prevention"),
+        RunPayloadFactory(),
     )
     assert response.status_code == 202
     data_dict = response.json
@@ -24,7 +24,7 @@ def test_submit_prevention(mock_delay, client, db) -> None:
 def test_submit_detection(mock_delay, client, db) -> None:
     response = client.post_json(
         "/api/run/",
-        _payload("detection"),
+        RunPayloadFactory(phase="detection"),
     )
     assert response.status_code == 202
 
@@ -38,7 +38,7 @@ def client_no_auth(db) -> DjangoTestApp:
 def test_submit_unauthenticated(mock_delay, client_no_auth, db) -> None:
     response = client_no_auth.post_json(
         "/api/run/",
-        _payload("prevention"),
+        RunPayloadFactory(),
         expect_errors=True,
     )
     assert response.status_code in (401, 403)
@@ -47,7 +47,7 @@ def test_submit_unauthenticated(mock_delay, client_no_auth, db) -> None:
 
 @patch("hope_ams.api.views.process_analysis.delay")
 def test_submit_invalid_branch(mock_delay, client, db) -> None:
-    payload = _payload("prevention")
+    payload = RunPayloadFactory()
     payload["phase"] = "invalid"
     response = client.post_json(
         "/api/run/",
@@ -60,7 +60,7 @@ def test_submit_invalid_branch(mock_delay, client, db) -> None:
 
 @patch("hope_ams.api.views.process_analysis.delay")
 def test_submit_missing_phase(mock_delay, client, db) -> None:
-    payload = _payload("prevention")
+    payload = RunPayloadFactory()
     del payload["phase"]
     response = client.post_json(
         "/api/run/",
@@ -73,7 +73,7 @@ def test_submit_missing_phase(mock_delay, client, db) -> None:
 
 @patch("hope_ams.api.views.process_analysis.delay")
 def test_submit_missing_payments(mock_delay, client, db) -> None:
-    payload = _payload("prevention")
+    payload = RunPayloadFactory()
     del payload["payment_plan"]["payments"]
     response = client.post_json(
         "/api/run/",
@@ -87,7 +87,7 @@ def test_submit_missing_payments(mock_delay, client, db) -> None:
 def test_submit_check(client, db) -> None:
     response = client.post_json(
         "/api/check/",
-        _check_payload(),
+        PlanPayloadFactory(),
     )
     assert response.status_code == 201
     data_dict = response.json
@@ -98,7 +98,7 @@ def test_submit_check(client, db) -> None:
 def test_submit_check_unauthenticated(client_no_auth, db) -> None:
     response = client_no_auth.post_json(
         "/api/check/",
-        _check_payload(),
+        PlanPayloadFactory(),
         expect_errors=True,
     )
     assert response.status_code in (401, 403)
@@ -542,61 +542,3 @@ def test_pagination(client, business_area, program, payment_plan) -> None:
     data_dict = response.json
     assert data_dict["count"] == 5
     assert len(data_dict["results"]) == 2
-
-
-def _payload(branch: str) -> dict:
-    return {
-        "phase": branch,
-        "callback_url": "https://hope.example.com/api/anomaly/callback/",
-        "payment_plan": {
-            **pp_data(),
-            "payments": [
-                {
-                    "id": str(uuid.uuid4()),
-                    "unicef_id": "PMT-001",
-                    "household_id": str(uuid.uuid4()),
-                    "household_unicef_id": "HH-001",
-                    "status": "assigned",
-                    "entitlement_quantity": 500.0,
-                    "snapshot_data": {
-                        "size": 4,
-                        "individuals": [
-                            {
-                                "id": str(uuid.uuid4()),
-                                "full_name": "John",
-                                "birth_date": "1990-01-01",
-                            },
-                        ],
-                    },
-                },
-            ],
-        },
-    }
-
-
-def _check_payload() -> dict:
-    d = pp_data()
-    return {
-        "office": d["office"],
-        "programme": d["programme"],
-        "payments": [
-            {
-                "id": str(uuid.uuid4()),
-                "unicef_id": "PMT-001",
-                "household_id": str(uuid.uuid4()),
-                "household_unicef_id": "HH-001",
-                "status": "assigned",
-                "entitlement_quantity": 500.0,
-                "snapshot_data": {
-                    "size": 4,
-                    "individuals": [
-                        {
-                            "id": str(uuid.uuid4()),
-                            "full_name": "John",
-                            "birth_date": "1990-01-01",
-                        },
-                    ],
-                },
-            },
-        ],
-    }

@@ -9,18 +9,18 @@ class BaseDictFactory(factory.DictFactory):
 
 
 class OfficePayloadFactory(BaseDictFactory):
-    id = factory.LazyFunction(uuid.uuid4)
+    id = factory.LazyFunction(lambda: str(uuid.uuid4()))
     name = factory.Sequence(lambda n: f"Office-{n}")
     slug = factory.Sequence(lambda n: f"office-{n}")
 
 
 class ProgrammePayloadFactory(BaseDictFactory):
-    id = factory.LazyFunction(uuid.uuid4)
+    id = factory.LazyFunction(lambda: str(uuid.uuid4()))
     name = factory.Sequence(lambda n: f"Programme-{n}")
 
 
 class PaymentPayloadFactory(BaseDictFactory):
-    id = factory.LazyFunction(uuid.uuid4)
+    id = factory.LazyFunction(lambda: str(uuid.uuid4()))
     individual_id = factory.Sequence(lambda n: f"IND-{n:04d}")
     currency = "USD"
     fsp = "FSP-A"
@@ -48,7 +48,8 @@ class PlanPayloadFactory(BaseDictFactory):
     class Params:
         num_payments = 1
 
-    pk = factory.LazyFunction(uuid.uuid4)
+    pk = factory.LazyFunction(lambda: str(uuid.uuid4()))
+    id = factory.LazyFunction(lambda: str(uuid.uuid4()))
     unicef_id = factory.Sequence(lambda n: f"PP-{n:04d}")
     office = factory.SubFactory(OfficePayloadFactory)
     programme = factory.SubFactory(ProgrammePayloadFactory)
@@ -60,3 +61,16 @@ class PlanPayloadFactory(BaseDictFactory):
     financial_service_provider = "FSP-A"
     reconciliation_window_in_days = 30
     payments = factory.LazyAttribute(lambda o: [PaymentPayloadFactory() for _ in range(o.num_payments)])
+
+
+class RunPayloadFactory(BaseDictFactory):
+    class Params:
+        num_payments = 1
+
+    phase = "prevention"
+    callback_url = "https://hope.example.com/api/anomaly/callback/"
+    payment_plan = factory.LazyAttribute(
+        lambda o: {
+            k: v for k, v in PlanPayloadFactory(num_payments=o.num_payments).items() if k != "dispersion_start_date"
+        }
+    )

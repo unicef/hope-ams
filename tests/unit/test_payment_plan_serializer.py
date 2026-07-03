@@ -1,71 +1,15 @@
 import uuid
 
 import pytest
-from django_webtest import DjangoTestApp
 
 from hope_ams.models import Office, Payment, PaymentPlan, Programme
-
-
-@pytest.fixture
-def client_ams(db) -> DjangoTestApp:
-    return DjangoTestApp(
-        extra_environ={
-            "HTTP_AUTHORIZATION": "Bearer dev-ams-api-key-change-in-production",
-        }
-    )
-
-
-def _check_payload() -> dict:
-    return {
-        "pk": str(uuid.uuid4()),
-        "office": {
-            "id": str(uuid.uuid4()),
-            "name": "Afghanistan",
-            "slug": "AFG",
-        },
-        "programme": {
-            "id": str(uuid.uuid4()),
-            "name": "Winterization",
-        },
-        "status": "locked",
-        "currency": "USD",
-        "total_entitled_quantity": 10000.0,
-        "delivery_mechanism": "cash",
-        "financial_service_provider": "FSP-A",
-        "reconciliation_window_in_days": 30,
-        "payments": [
-            {
-                "id": str(uuid.uuid4()),
-                "individual_id": "IND-001",
-                "currency": "USD",
-                "fsp": "FSP-A",
-                "delivery_type": "cash",
-                "unicef_id": "PMT-001",
-                "household_unicef_id": "HH-001",
-                "status": "assigned",
-                "entitlement_source": 500.0,
-                "vulnerability_score": 5.0,
-                "excluded": False,
-                "conflicted": False,
-                "order_number": 1,
-                "token_number": "T-001",
-                "current_household_data": {"size": 4},
-                "entitlement_quantity": 500.0,
-                "entitlement_quantity_usd": 500.0,
-                "delivered_quantity": 400.0,
-                "delivered_quantity_usd": 400.0,
-                "delivery_date_str": "2025-10-01",
-                "snapshot": {"raw": True},
-                "errors": {},
-            }
-        ],
-    }
+from tests._extras.testutils.factories import PaymentPayloadFactory, PlanPayloadFactory
 
 
 def test_valid_payload_serializes(db) -> None:
     from hope_ams.api.payment_plan_serializer import PaymentPlanSerializer
 
-    payload = _check_payload()
+    payload = PlanPayloadFactory()
     serializer = PaymentPlanSerializer(data=payload)
     assert serializer.is_valid(), f"Validation errors: {serializer.errors}"
 
@@ -74,8 +18,7 @@ def test_creates_office(db) -> None:
     from hope_ams.api.payment_plan_serializer import PaymentPlanSerializer
 
     office_id = uuid.uuid4()
-    payload = _check_payload()
-    payload["office"]["id"] = str(office_id)
+    payload = PlanPayloadFactory(office={"id": str(office_id), "name": "Afghanistan", "slug": "AFG"})
 
     serializer = PaymentPlanSerializer(data=payload)
     serializer.is_valid(raise_exception=True)
@@ -88,8 +31,7 @@ def test_creates_programme(db) -> None:
     from hope_ams.api.payment_plan_serializer import PaymentPlanSerializer
 
     prog_id = uuid.uuid4()
-    payload = _check_payload()
-    payload["programme"]["id"] = str(prog_id)
+    payload = PlanPayloadFactory(programme={"id": str(prog_id), "name": "Winterization"})
 
     serializer = PaymentPlanSerializer(data=payload)
     serializer.is_valid(raise_exception=True)
@@ -102,8 +44,8 @@ def test_creates_payment_plan(db) -> None:
     from hope_ams.api.payment_plan_serializer import PaymentPlanSerializer
 
     pp_correlation = uuid.uuid4()
-    payload = _check_payload()
-    payload["pk"] = str(pp_correlation)
+    payload = PlanPayloadFactory(pk=str(pp_correlation))
+    del payload["unicef_id"]
 
     serializer = PaymentPlanSerializer(data=payload)
     serializer.is_valid(raise_exception=True)
@@ -119,7 +61,9 @@ def test_creates_payment_plan(db) -> None:
 def test_creates_payment_records(db) -> None:
     from hope_ams.api.payment_plan_serializer import PaymentPlanSerializer
 
-    payload = _check_payload()
+    payload = PlanPayloadFactory(
+        payments=[PaymentPayloadFactory(individual_id="IND-001", unicef_id="PMT-001", household_unicef_id="HH-001")]
+    )
     payment_id = uuid.UUID(payload["payments"][0]["id"])
 
     serializer = PaymentPlanSerializer(data=payload)
@@ -155,11 +99,12 @@ def test_upserts_existing_payment(db) -> None:
         delivery_type="mobile_money",
     )
 
-    payload = _check_payload()
-    payload["pk"] = str(existing_pp.correlation_id)
-    payload["office"]["id"] = str(existing_ba.correlation_id)
-    payload["programme"]["id"] = str(existing_prog.correlation_id)
-    payload["payments"][0]["id"] = str(payment_id)
+    payload = PlanPayloadFactory(
+        pk=str(existing_pp.correlation_id),
+        office={"id": str(existing_ba.correlation_id), "name": "Afghanistan", "slug": "AFG"},
+        programme={"id": str(existing_prog.correlation_id), "name": "Winterization"},
+        payments=[PaymentPayloadFactory(id=str(payment_id), individual_id="IND-001")],
+    )
 
     serializer = PaymentPlanSerializer(data=payload)
     serializer.is_valid(raise_exception=True)
@@ -175,8 +120,7 @@ def test_pk_field_maps_to_correlation_id(db) -> None:
     from hope_ams.api.payment_plan_serializer import PaymentPlanSerializer
 
     pp_correlation = uuid.uuid4()
-    payload = _check_payload()
-    payload["pk"] = str(pp_correlation)
+    payload = PlanPayloadFactory(pk=str(pp_correlation))
 
     serializer = PaymentPlanSerializer(data=payload)
     serializer.is_valid(raise_exception=True)
@@ -233,15 +177,14 @@ def test_serializes_all_fields(db) -> None:
 def test_accepts_valid_payload(client, db) -> None:
     response = client.post_json(
         "/api/check/",
-        _check_payload(),
+        PlanPayloadFactory(),
     )
     assert response.status_code == 201
 
 
 def test_returns_payment_plan_id(client, db) -> None:
     pp_correlation = str(uuid.uuid4())
-    payload = _check_payload()
-    payload["pk"] = pp_correlation
+    payload = PlanPayloadFactory(pk=pp_correlation)
 
     response = client.post_json(
         "/api/check/",
@@ -255,7 +198,7 @@ def test_returns_payment_plan_id(client, db) -> None:
 def test_returns_payments_count(client, db) -> None:
     response = client.post_json(
         "/api/check/",
-        _check_payload(),
+        PlanPayloadFactory(),
     )
     assert response.json["payments_count"] == 1
 
@@ -263,7 +206,7 @@ def test_returns_payments_count(client, db) -> None:
 def test_unauthenticated_returns_401(client_unauthenticated, db) -> None:
     response = client_unauthenticated.post_json(
         "/api/check/",
-        _check_payload(),
+        PlanPayloadFactory(),
         expect_errors=True,
     )
     assert response.status_code in (401, 403)
@@ -277,7 +220,7 @@ def test_invokes_db_creations(client, db) -> None:
 
     response = client.post_json(
         "/api/check/",
-        _check_payload(),
+        PlanPayloadFactory(),
     )
     assert response.status_code == 201
 
@@ -288,19 +231,9 @@ def test_invokes_db_creations(client, db) -> None:
 
 
 def test_multiple_payments_persisted(db) -> None:
-    payload = _check_payload()
-    extra_payment = {
-        "id": str(uuid.uuid4()),
-        "individual_id": "IND-002",
-        "currency": "EUR",
-        "fsp": "FSP-B",
-        "delivery_type": "mobile_money",
-        "unicef_id": "PMT-002",
-    }
-    payload["payments"].append(extra_payment)
-
     from hope_ams.api.payment_plan_serializer import PaymentPlanSerializer
 
+    payload = PlanPayloadFactory(num_payments=2)
     serializer = PaymentPlanSerializer(data=payload)
     serializer.is_valid(raise_exception=True)
     result = serializer.save()
@@ -312,8 +245,7 @@ def test_multiple_payments_persisted(db) -> None:
 def test_update_existing_office(client, db) -> None:
     existing_ba = Office.objects.create(correlation_id=uuid.uuid4(), name="Old Name", slug="old-slug")
 
-    payload = _check_payload()
-    payload["office"]["id"] = str(existing_ba.correlation_id)
+    payload = PlanPayloadFactory(office={"id": str(existing_ba.correlation_id), "name": "Afghanistan", "slug": "AFG"})
 
     response = client.post_json(
         "/api/check/",
@@ -420,8 +352,7 @@ def test_invalid_delivery_date_str_returns_none(db) -> None:
 def test_invalid_pk_rejected_by_validation(db) -> None:
     from hope_ams.api.payment_plan_serializer import PaymentPlanSerializer
 
-    payload = _check_payload()
-    payload["pk"] = "not-a-uuid"
+    payload = PlanPayloadFactory(pk="not-a-uuid")
 
     serializer = PaymentPlanSerializer(data=payload)
     assert not serializer.is_valid()
@@ -431,7 +362,7 @@ def test_invalid_pk_rejected_by_validation(db) -> None:
 def test_payment_without_id_generates_uuid(db) -> None:
     from hope_ams.api.payment_plan_serializer import PaymentPlanSerializer
 
-    payload = _check_payload()
+    payload = PlanPayloadFactory()
     del payload["payments"][0]["id"]
 
     serializer = PaymentPlanSerializer(data=payload)
@@ -443,7 +374,7 @@ def test_payment_without_id_generates_uuid(db) -> None:
 def test_payment_invalid_id_rejected_by_validation(db) -> None:
     from hope_ams.api.payment_plan_serializer import PaymentPlanSerializer
 
-    payload = _check_payload()
+    payload = PlanPayloadFactory()
     payload["payments"][0]["id"] = "not-a-uuid"
 
     serializer = PaymentPlanSerializer(data=payload)

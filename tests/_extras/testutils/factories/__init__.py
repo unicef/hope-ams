@@ -3,7 +3,7 @@ from factory.django import DjangoModelFactory
 from .anomaly_result import AnomalyResultFactory
 from .base import AutoRegisterModelFactory, TAutoRegisterModelFactory, factories_registry
 from .detection_run import DetectionRunFactory
-from .json import PaymentPayloadFactory, PlanPayloadFactory
+from .json import PaymentPayloadFactory, PlanPayloadFactory, RunPayloadFactory
 from .office import OfficeFactory
 from .payment import PaymentFactory
 from .payment_plan import PaymentPlanFactory
@@ -43,6 +43,7 @@ __all__ = [
     "ProgrammeFactory",
     "ProgrammeRuleConfigurationFactory",
     "RuleConfigFactory",
+    "RunPayloadFactory",
     "SuperUserFactory",
     "UserFactory",
     "UserRoleFactory",

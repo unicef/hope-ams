@@ -9,6 +9,7 @@ def test_full_structure() -> None:
 
     assert set(payload) == {
         "pk",
+        "id",
         "unicef_id",
         "office",
         "programme",
