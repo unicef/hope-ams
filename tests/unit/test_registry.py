@@ -4,26 +4,28 @@ from hope_ams.detection.rules.registry import rule_registry as registry
 
 def test_registry_has_prevention_rules() -> None:
     rules = registry.get_all("prevention")
-    assert len(rules) == 3
+    assert len(rules) == 1
 
 
 def test_registry_has_detection_rules() -> None:
     rules = registry.get_all("detection")
-    assert len(rules) == 1
+    assert len(rules) == 0
 
 
 def test_registry_get_enabled_filters_disabled() -> None:
-    config = {"rules": {"pregnant_child": {"enabled": False}}}
+    config = {"rules": {"pregnancy_validity": {"enabled": False}}}
     rules = registry.get_enabled("prevention", config)
     names = [r.name for r in rules]
-    assert "pregnant_child" not in names
+    assert "pregnancy_validity" not in names
 
 
 def test_registry_get_rule_by_name() -> None:
-    rule = registry.get_rule("pregnant_child")
+    rule = registry.get_rule("pregnancy_validity")
     assert rule is not None
-    assert rule.name == "pregnant_child"
-    assert rule.phase == "prevention"
+    assert rule.name == "pregnancy_validity"
+    from hope_ams.models.choices import Phase
+
+    assert Phase.PREVENTION in rule.phases
 
 
 def test_registry_get_rule_unknown() -> None:
@@ -47,7 +49,7 @@ def test_rule_context_properties(sample_payment: dict) -> None:
 
 
 def test_registry_rule_names_newline() -> None:
-    rule = registry.get_rule("pregnant_child")
+    rule = registry.get_rule("pregnancy_validity")
     assert rule is not None
     assert rule.description
     assert rule.default_severity

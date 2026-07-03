@@ -1,7 +1,7 @@
 import pytest
 from django.urls import reverse
 
-from hope_ams.detection.rules.prevention.pregnant_child import PregnantChildRule
+from hope_ams.detection.rules.pregnancy_validity import PregnancyValidityRule
 from tests._extras.testutils.factories.programme_rule_configuration import (
     ProgrammeRuleConfigurationFactory,
 )
@@ -42,8 +42,8 @@ def test_configure_get_renders_form(app, db) -> None:
     assert res.status_code == 200
     assert "adminform" in res.context
     form = res.context["adminform"].form
-    assert form.initial.get("min_age") == PregnantChildRule.default_config["min_age"]
-    assert form.initial.get("max_age") == PregnantChildRule.default_config["max_age"]
+    assert form.initial.get("min_age") == PregnancyValidityRule.default_config["min_age"]
+    assert form.initial.get("max_age") == PregnancyValidityRule.default_config["max_age"]
 
 
 def test_configure_get_no_rule(app, db) -> None:

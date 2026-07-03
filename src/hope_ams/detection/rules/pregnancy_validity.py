@@ -3,19 +3,21 @@ from uuid import UUID
 
 from django import forms
 
-from ..base import BaseRule, Finding, RuleConfigForm, RuleContext
+from hope_ams.models.choices import Phase
+
+from .base import BaseRule, Finding, RuleConfigForm, RuleContext
 
 
-class PregnantChildConfig(RuleConfigForm):
+class PregnancyValidityConfig(RuleConfigForm):
     min_age = forms.IntegerField(label="Minimum age", initial=12)
     max_age = forms.IntegerField(label="Maximum age", initial=55)
 
 
-class PregnantChildRule(BaseRule):
-    name = "pregnant_child"
-    verbose_name = "Pregnant Child"
-    phase = "prevention"
-    config_class = PregnantChildConfig
+class PregnancyValidityRule(BaseRule):
+    name = "pregnancy_validity"
+    verbose_name = "Pregnancy Validity"
+    phases = [Phase.PREVENTION]
+    config_class = PregnancyValidityConfig
     description = "Individual is marked as pregnant but age is outside expected childbearing range"
     default_severity = "critical"
     default_config = {"min_age": 12, "max_age": 55}

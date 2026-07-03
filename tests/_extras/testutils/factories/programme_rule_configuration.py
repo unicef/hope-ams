@@ -1,8 +1,8 @@
 import factory
 
-from hope_ams.detection.rules.prevention.pregnant_child import PregnantChildRule
+from hope_ams.detection.rules.pregnancy_validity import PregnancyValidityRule
 from hope_ams.models import ProgrammeRuleConfiguration
-from hope_ams.models.choices import CommonPhase
+from hope_ams.models.choices import Phase
 
 from .base import AutoRegisterModelFactory
 from .programme import ProgrammeFactory
@@ -13,8 +13,8 @@ class ProgrammeRuleConfigurationFactory(AutoRegisterModelFactory):
         model = ProgrammeRuleConfiguration
 
     name = "test-programme-config"
-    rule = PregnantChildRule
+    rule = PregnancyValidityRule
     enabled = True
     config = {}
-    phase = CommonPhase.BOTH
+    phase = Phase.PREVENTION
     programme = factory.SubFactory(ProgrammeFactory)

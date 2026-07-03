@@ -2,14 +2,14 @@ from django.db import models
 from django.utils.translation import gettext as _
 
 from hope_ams.models.choices import (
-    DetectionRunPhase,
+    Phase,
     DetectionRunStatus,
     DetectionRunTrigger,
 )
 
 
 def get_detection_run_phases() -> list[tuple[str, str]]:
-    return DetectionRunPhase.choices
+    return Phase.choices
 
 
 def get_detection_run_statuses() -> list[tuple[str, str]]:

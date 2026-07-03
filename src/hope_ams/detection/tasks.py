@@ -34,21 +34,19 @@ def _load_rule_configs(programme_id: str, phase: str) -> dict[str, RuleConfig | 
 
     configs: dict[str, RuleConfig | ProgrammeRuleConfiguration] = {}
 
-    for prc in ProgrammeRuleConfiguration.objects.filter(programme_id=programme_pk):
-        if not prc.enabled:
-            continue
-        if prc.phase not in (phase, "both"):
-            continue
-        configs[prc.rule.name] = prc
-
     for rc in RuleConfig.objects.all():
         if not rc.enabled:
             continue
-        if rc.phase not in (phase, "both"):
+        if rc.phase != phase:
             continue
-        rule_name = rc.rule.name
-        if rule_name not in configs:
-            configs[rule_name] = rc
+        configs[rc.rule.name] = rc
+
+    for prc in ProgrammeRuleConfiguration.objects.filter(programme_id=programme_pk):
+        if not prc.enabled:
+            continue
+        if prc.phase != phase:
+            continue
+        configs[prc.rule.name] = prc
 
     return configs
 

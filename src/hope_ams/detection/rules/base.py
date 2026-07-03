@@ -4,6 +4,8 @@ from typing import TYPE_CHECKING, Any
 
 from django import forms
 
+from hope_ams.models.choices import Phase  # noqa: TC001
+
 if TYPE_CHECKING:
     from uuid import UUID
 
@@ -16,7 +18,7 @@ class Finding:
     title: str
     description: str
     object_type: str
-    object_id: str | "UUID"
+    object_id: "str | UUID"
     object_unicef_id: str = ""
     metadata: dict[str, Any] = field(default_factory=dict)
     payment_id: str | "UUID" | None = None
@@ -51,7 +53,7 @@ class RuleConfigForm(forms.Form):
 
 class BaseRule(ABC):
     name: str = ""
-    phase: str = ""
+    phases: list[Phase] = []
     verbose_name: str = ""
     description: str = ""
     default_severity: str = "medium"

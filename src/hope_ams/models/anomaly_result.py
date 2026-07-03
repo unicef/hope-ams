@@ -3,7 +3,7 @@ from django.utils.translation import gettext as _
 
 from hope_ams.models.choices import (
     AnomalyStatus,
-    DetectionRunPhase,
+    Phase,
     SeverityLevel,
 )
 
@@ -26,7 +26,7 @@ def get_anomaly_result_object_types() -> list[tuple[str, str]]:
 
 
 def get_anomaly_result_phases() -> list[tuple[str, str]]:
-    return DetectionRunPhase.choices
+    return Phase.choices
 
 
 class AnomalyResult(models.Model):

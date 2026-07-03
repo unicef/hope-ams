@@ -159,7 +159,7 @@ class Command(BaseCommand):
                         rule=rule_cls,
                         enabled=True,
                         config=rule_cls.default_config,
-                        phase=rule_cls.phase,
+                        phase=rule_cls.phases[0].value,
                     )
                     echo(f"  Created RuleConfig for {rule_cls.verbose_name or rule_cls.name}")
 

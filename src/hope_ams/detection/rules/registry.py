@@ -17,7 +17,7 @@ class RuleRegistry(Registry):  # type: ignore[misc]
         return None
 
     def get_all(self, phase: str | None = None) -> list[BaseRule]:
-        return [cast("BaseRule", cls()) for cls in self if phase is None or cls.phase == phase]
+        return [cast("BaseRule", cls()) for cls in self if phase is None or any(phase == p.value for p in cls.phases)]
 
     def get_enabled(self, phase: str, config: dict[str, Any]) -> list[BaseRule]:
         rules = self.get_all(phase)

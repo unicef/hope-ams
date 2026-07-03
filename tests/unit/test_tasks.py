@@ -12,35 +12,37 @@ pytestmark = [pytest.mark.django_db]
 
 
 def test_global_config(business_area, program) -> None:
-    rc = RuleConfigFactory(phase="both")
+    rc = RuleConfigFactory(phase="prevention")
     result = _load_rule_configs(str(program.correlation_id), "prevention")
     assert rc.rule.name in result
 
 
 def test_programme_config(business_area, program) -> None:
-    from hope_ams.detection.rules.prevention.pregnant_child import PregnantChildRule
+    from hope_ams.detection.rules.pregnancy_validity import PregnancyValidityRule
 
     prc = ProgrammeRuleConfiguration.objects.create(
-        rule=PregnantChildRule, phase="both", programme=program, enabled=True
+        rule=PregnancyValidityRule, phase="prevention", programme=program, enabled=True
     )
     result = _load_rule_configs(str(program.correlation_id), "prevention")
     assert prc.rule.name in result
 
 
 def test_wrong_phase_excluded(business_area, program) -> None:
-    from hope_ams.detection.rules.prevention.pregnant_child import PregnantChildRule
+    from hope_ams.detection.rules.pregnancy_validity import PregnancyValidityRule
 
     ProgrammeRuleConfiguration.objects.create(
-        rule=PregnantChildRule, phase="detection", programme=program, enabled=True
+        rule=PregnancyValidityRule, phase="detection", programme=program, enabled=True
     )
     result = _load_rule_configs(str(program.correlation_id), "prevention")
     assert len(result) == 0
 
 
 def test_disabled_excluded(business_area, program) -> None:
-    from hope_ams.detection.rules.prevention.pregnant_child import PregnantChildRule
+    from hope_ams.detection.rules.pregnancy_validity import PregnancyValidityRule
 
-    ProgrammeRuleConfiguration.objects.create(rule=PregnantChildRule, phase="both", programme=program, enabled=False)
+    ProgrammeRuleConfiguration.objects.create(
+        rule=PregnancyValidityRule, phase="prevention", programme=program, enabled=False
+    )
     result = _load_rule_configs(str(program.correlation_id), "prevention")
     assert len(result) == 0
 

@@ -77,6 +77,11 @@ UNFOLD = {
                         "icon": "tune",
                         "link": "/admin/hope_ams/ruleconfig/",
                     },
+                    {
+                        "title": "Programme Rule Configs",
+                        "icon": "assignment",
+                        "link": "/admin/hope_ams/programmeruleconfiguration/",
+                    },
                 ],
             },
         ],

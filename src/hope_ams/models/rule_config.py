@@ -3,11 +3,11 @@ from django.utils.translation import gettext as _
 from strategy_field.fields import StrategyField
 
 from hope_ams.detection.rules.registry import rule_registry
-from hope_ams.models.choices import CommonPhase
+from hope_ams.models.choices import Phase
 
 
 def get_rule_config_phases() -> list[tuple[str, str]]:
-    return CommonPhase.choices
+    return Phase.choices
 
 
 class RuleConfig(models.Model):
@@ -42,7 +42,7 @@ class RuleConfig(models.Model):
         verbose_name=_("Phase"),
         max_length=20,
         choices=get_rule_config_phases,
-        default=CommonPhase.BOTH,
+        default=Phase.PREVENTION,
         help_text=_("Whether this rule applies to prevention or detection phase"),
     )
     created_at = models.DateTimeField(

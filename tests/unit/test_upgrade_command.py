@@ -26,7 +26,7 @@ def test_upgrade_creates_rule_config_for_each_rule() -> None:
     for rule_cls in registered_rules:
         config = RuleConfig.objects.get(name=rule_cls.verbose_name or rule_cls.name)
         assert config.rule is not None
-        assert config.phase == rule_cls.phase
+        assert config.phase == rule_cls.phases[0].value
         assert config.config == rule_cls.default_config
         assert config.enabled is True
 
@@ -53,11 +53,11 @@ def test_upgrade_creates_config_with_default_values() -> None:
 
 
 def test_upgrade_skips_existing_configs() -> None:
-    from hope_ams.detection.rules.prevention.pregnant_child import PregnantChildRule
+    from hope_ams.detection.rules.pregnancy_validity import PregnancyValidityRule
 
     RuleConfig.objects.create(
         name="Custom Pregnant Child",
-        rule=PregnantChildRule,
+        rule=PregnancyValidityRule,
         enabled=False,
         config={"min_age": 10},
         phase="prevention",

@@ -2,7 +2,7 @@ import uuid
 
 import pytest
 
-from hope_ams.detection.rules.prevention.pregnant_child import PregnantChildRule
+from hope_ams.detection.rules.pregnancy_validity import PregnancyValidityRule
 from hope_ams.models import (
     AnomalyResult,
     DetectionRun,
@@ -83,7 +83,7 @@ def test_create_anomaly_result(db, payment_plan: PaymentPlan, program: Programme
     anomaly = AnomalyResult.objects.create(
         detection_run=run,
         phase="prevention",
-        rule_name="pregnant_child",
+        rule_name="pregnancy_validity",
         severity="critical",
         status="open",
         title="Test anomaly",
@@ -100,56 +100,56 @@ def test_create_anomaly_result(db, payment_plan: PaymentPlan, program: Programme
 def test_create_rule_config(db) -> None:
     rc = RuleConfig.objects.create(
         name="test-config",
-        rule=PregnantChildRule,
+        rule=PregnancyValidityRule,
         enabled=True,
         config={"min_age": 12, "max_age": 55},
     )
-    assert "pregnant_child" in str(rc)
+    assert "pregnancy_validity" in str(rc)
     assert rc.config == {"min_age": 12, "max_age": 55}
 
 
 def test_string_representation_rule_config(db) -> None:
-    rc = RuleConfig.objects.create(rule=PregnantChildRule, enabled=True)
-    assert "pregnant_child" in str(rc)
+    rc = RuleConfig.objects.create(rule=PregnancyValidityRule, enabled=True)
+    assert "pregnancy_validity" in str(rc)
 
 
 def test_created_at_set(db) -> None:
     import datetime
     from zoneinfo import ZoneInfo
 
-    rc = RuleConfig.objects.create(rule=PregnantChildRule, enabled=True)
+    rc = RuleConfig.objects.create(rule=PregnancyValidityRule, enabled=True)
     assert rc.created_at is not None
     diff = datetime.datetime.now(tz=ZoneInfo("UTC")) - rc.created_at
     assert diff.total_seconds() < 60
 
 
-def test_phase_both(db) -> None:
-    rc = RuleConfig.objects.create(rule=PregnantChildRule, enabled=True, phase="both")
-    assert str(rc).endswith("(both)")
+def test_phase_prevention_default(db) -> None:
+    rc = RuleConfig.objects.create(rule=PregnancyValidityRule, enabled=True, phase="prevention")
+    assert str(rc).endswith("(prevention)")
 
 
 def test_phase_prevention_only(db) -> None:
-    rc = RuleConfig.objects.create(rule=PregnantChildRule, enabled=True, phase="prevention")
+    rc = RuleConfig.objects.create(rule=PregnancyValidityRule, enabled=True, phase="prevention")
     assert rc.phase == "prevention"
     assert str(rc).endswith("(prevention)")
 
 
 def test_phase_detection_only(db) -> None:
-    rc = RuleConfig.objects.create(rule=PregnantChildRule, enabled=True, phase="detection")
+    rc = RuleConfig.objects.create(rule=PregnancyValidityRule, enabled=True, phase="detection")
     assert rc.phase == "detection"
     assert str(rc).endswith("(detection)")
 
 
 def test_create_programme_rule_configuration(db, program: Programme) -> None:
     prc = ProgrammeRuleConfiguration.objects.create(
-        rule=PregnantChildRule, enabled=True, phase="prevention", programme=program
+        rule=PregnancyValidityRule, enabled=True, phase="prevention", programme=program
     )
-    assert str(prc) == f"pregnant_child ({program})"
+    assert str(prc) == f"pregnancy_validity ({program})"
 
 
 def test_with_config(db, program: Programme) -> None:
     prc = ProgrammeRuleConfiguration.objects.create(
-        rule=PregnantChildRule,
+        rule=PregnancyValidityRule,
         enabled=True,
         phase="prevention",
         programme=program,
@@ -161,45 +161,47 @@ def test_with_config(db, program: Programme) -> None:
 def test_programme_specific_takes_precedence(db, program: Programme) -> None:
     from hope_ams.detection.tasks import _load_rule_configs
 
-    RuleConfig.objects.create(rule=PregnantChildRule, enabled=True, phase="both", config={"min_age": 15})
+    RuleConfig.objects.create(rule=PregnancyValidityRule, enabled=True, phase="prevention", config={"min_age": 15})
     ProgrammeRuleConfiguration.objects.create(
-        rule=PregnantChildRule,
+        rule=PregnancyValidityRule,
         enabled=True,
-        phase="both",
+        phase="prevention",
         programme=program,
         config={"min_age": 12},
     )
     result = _load_rule_configs(str(program.correlation_id), "prevention")
-    assert PregnantChildRule.name in result
-    assert result[PregnantChildRule.name].config["min_age"] == 12
-    assert isinstance(result[PregnantChildRule.name], ProgrammeRuleConfiguration)
+    assert PregnancyValidityRule.name in result
+    assert result[PregnancyValidityRule.name].config["min_age"] == 12
+    assert isinstance(result[PregnancyValidityRule.name], ProgrammeRuleConfiguration)
 
 
 def test_global_fallback(db, program: Programme) -> None:
     from hope_ams.detection.tasks import _load_rule_configs
 
-    RuleConfig.objects.create(rule=PregnantChildRule, enabled=True, phase="both")
+    RuleConfig.objects.create(rule=PregnancyValidityRule, enabled=True, phase="prevention")
     result = _load_rule_configs(str(program.correlation_id), "prevention")
-    assert PregnantChildRule.name in result
-    assert isinstance(result[PregnantChildRule.name], RuleConfig)
+    assert PregnancyValidityRule.name in result
+    assert isinstance(result[PregnancyValidityRule.name], RuleConfig)
 
 
 def test_disabled_excluded_programme_config(db, program: Programme) -> None:
     from hope_ams.detection.tasks import _load_rule_configs
 
-    ProgrammeRuleConfiguration.objects.create(rule=PregnantChildRule, enabled=False, phase="both", programme=program)
+    ProgrammeRuleConfiguration.objects.create(
+        rule=PregnancyValidityRule, enabled=False, phase="prevention", programme=program
+    )
     result = _load_rule_configs(str(program.correlation_id), "prevention")
-    assert PregnantChildRule.name not in result
+    assert PregnancyValidityRule.name not in result
 
 
 def test_wrong_phase_excluded_programme_config(db, program: Programme) -> None:
     from hope_ams.detection.tasks import _load_rule_configs
 
     ProgrammeRuleConfiguration.objects.create(
-        rule=PregnantChildRule, enabled=True, phase="detection", programme=program
+        rule=PregnancyValidityRule, enabled=True, phase="detection", programme=program
     )
     result = _load_rule_configs(str(program.correlation_id), "prevention")
-    assert PregnantChildRule.name not in result
+    assert PregnancyValidityRule.name not in result
 
 
 if __name__ == "__main__":

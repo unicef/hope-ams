@@ -2,13 +2,7 @@ from django.db import models
 from django.utils.translation import gettext as _
 
 
-class CommonPhase(models.TextChoices):
-    PREVENTION = "prevention", _("Prevention")
-    DETECTION = "detection", _("Detection")
-    BOTH = "both", _("Both")
-
-
-class DetectionRunPhase(models.TextChoices):
+class Phase(models.TextChoices):
     PREVENTION = "prevention", _("Prevention")
     DETECTION = "detection", _("Detection")
 
