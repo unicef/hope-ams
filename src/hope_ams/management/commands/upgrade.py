@@ -13,7 +13,10 @@ from django.core.management import BaseCommand, call_command
 from django.core.validators import validate_email
 from django.utils.text import slugify
 
-from hope_ams.models import Office
+from strategy_field.utils import fqn
+
+from hope_ams.detection.rules.registry import rule_registry
+from hope_ams.models import Office, RuleConfig
 
 if TYPE_CHECKING:
     from argparse import ArgumentParser
@@ -107,7 +110,7 @@ class Command(BaseCommand):
 
         sys.exit(1)
 
-    def handle(self, *args: Any, **options: Any) -> None:  # noqa: C901
+    def handle(self, *args: Any, **options: Any) -> None:  # noqa: C901, PLR0915, PLR0912
 
         self.get_options(options)
         if self.verbosity >= 1:
@@ -177,6 +180,20 @@ class Command(BaseCommand):
                 name=tenant_hq,
             )
             call_command("upgradescripts", ["apply"])
+
+            echo("Seed RuleConfig entries for registered rules")
+            for rule_cls in rule_registry:
+                rule_fqn = fqn(rule_cls)
+                if not RuleConfig.objects.filter(rule=rule_fqn).exists():
+                    RuleConfig.objects.create(
+                        name=rule_cls.verbose_name or rule_cls.name,
+                        rule=rule_cls,
+                        enabled=True,
+                        config=rule_cls.default_config,
+                        phase=rule_cls.phase,
+                    )
+                    echo(f"  Created RuleConfig for {rule_cls.verbose_name or rule_cls.name}")
+
             echo("Upgrade completed", style_func=self.style.SUCCESS)
         except ValidationError as e:  # pragma: no cover
             self.halt(Exception("\n- ".join(["Wrong argument(s):", *e.messages])))
