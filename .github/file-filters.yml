@@ -22,6 +22,7 @@ changelog:
 mypy:
   - *python
   - 'mypy.ini'
+  - 'tox.ini'
 
 run_tests:
   - *actions
@@ -29,6 +30,7 @@ run_tests:
   - *docker
   - *dependencies
   - 'pytest.ini'
+  - 'tox.ini'
 
 migrations:
   - added|modified: 'src/**/migrations/*'
@@ -36,6 +38,8 @@ migrations:
 lint:
   - *python
   - 'pyproject.toml'
+  - 'ruff.toml'
+  - 'tox.ini'
 
 docs:
   - added|modified: './docs/**/*'
