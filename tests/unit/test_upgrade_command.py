@@ -1,6 +1,4 @@
-import sys
-from types import ModuleType
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 from django.core.management import call_command
@@ -11,35 +9,8 @@ from hope_ams.models import RuleConfig
 pytestmark = pytest.mark.django_db
 
 
-def _fake_country_workspace() -> None:
-    """Inject fake country_workspace modules so the upgrade command can be imported."""
-
-    if "country_workspace" not in sys.modules:
-        cw = ModuleType("country_workspace")
-        cw.VERSION = "0.1.0"
-        sys.modules["country_workspace"] = cw
-
-        cw_config = ModuleType("country_workspace.config")
-        cw_config.env = MagicMock(return_value="")  # type: ignore[method-assign]
-        sys.modules["country_workspace.config"] = cw_config
-
-        cw_security = ModuleType("country_workspace.security")
-        sys.modules["country_workspace.security"] = cw_security
-
-        cw_utils = ModuleType("country_workspace.security.utils")
-        cw_utils.setup_workspace_group = MagicMock()  # type: ignore[method-assign]
-        sys.modules["country_workspace.security.utils"] = cw_utils
-
-
 def _run_upgrade() -> None:
-    _fake_country_workspace()
-    import hope_ams.management.commands.upgrade  # noqa: F401
-
-    # Patch call_command bound in the upgrade module's namespace
-    with (
-        patch("hope_ams.management.commands.upgrade.call_command"),
-        patch("hope_ams.management.commands.upgrade.Office.objects.get_or_create"),
-    ):
+    with patch("hope_ams.management.commands.upgrade.call_command"):
         call_command("upgrade", verbosity=0)
 
 
