@@ -4,11 +4,10 @@ on:
   push:
     branches:
       - develop
-      - main
     paths:
       - 'docs/**'
-      - 'zensical.toml'
-      - '.github/workflows/docs.yml'
+      - 'mkdocs.yaml'
+      - './.github/workflows/docs.yml'
   pull_request:
     branches:
       - develop
@@ -17,8 +16,8 @@ on:
       - synchronize
     paths:
       - 'docs/**'
-      - 'zensical.toml'
-      - '.github/workflows/docs.yml'
+      - 'mkdocs.yaml'
+      - './.github/workflows/docs.yml'
 
 permissions:
   contents: read
@@ -33,6 +32,9 @@ jobs:
   changes:
     runs-on: ubuntu-latest
     timeout-minutes: 1
+    defaults:
+      run:
+        shell: bash
     outputs:
       docs: ${{ steps.changed_files.outputs.docs }}
     steps:
@@ -45,15 +47,15 @@ jobs:
           base: ${{ github.ref }}
           token: ${{ github.token }}
           filters: .github/file-filters.yml
-
   generate:
     name: Generate
     if: needs.changes.outputs.docs == 'true'
     needs: changes
     runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: src/
     steps:
       - uses: actions/checkout@v6
-
       - uses: astral-sh/setup-uv@v7
 
       - uses: actions/cache/restore@v5
@@ -65,21 +67,21 @@ jobs:
       - name: Install dependencies
         run: uv sync --group docs
 
+      - name: Build Doc
+        run: .venv/bin/mkdocs build -d ./docs-output
+
       - uses: actions/cache/save@v5
         id: cache
         if: always() && steps.restore-cache.outputs.cache-hit != 'true'
         with:
           path: .venv
           key: ${{ runner.os }}-${{ hashFiles('**/uv.lock') }}
-
-      - name: Build Doc
-        run: zensical build --clean
-
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5
         with:
-          path: site
+          path: ./docs-output
 
+  # Deployment job
   deploy:
     needs: generate
     environment:
@@ -89,4 +91,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v5
+        uses: actions/deploy-pages@v6
