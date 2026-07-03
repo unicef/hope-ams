@@ -59,7 +59,7 @@ class RuleConfigAdmin(ExtraButtonsMixin, UnfoldModelAdmin):  # type: ignore[misc
                     obj.config = config_form.cleaned_data
                     obj.save(update_fields=["config"])
                     self.message_user(request, _("Rule %(name)s configured") % {"name": obj.name})
-                    return redirect(reverse("admin:detection_ruleconfig_change", args=(obj.pk,)))
+                    return redirect(reverse("admin:hope_ams_ruleconfig_change", args=(obj.pk,)))
             else:
                 initial = dict(obj.rule.default_config) if obj.rule else {}
                 initial.update(obj.config)

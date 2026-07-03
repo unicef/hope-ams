@@ -60,7 +60,7 @@ class ProgrammeRuleConfigurationAdmin(ExtraButtonsMixin, UnfoldModelAdmin):  # t
                     )
                     return redirect(
                         reverse(
-                            "admin:detection_programmeruleconfiguration_change",
+                            "admin:hope_ams_programmeruleconfiguration_change",
                             args=(obj.pk,),
                         )
                     )
