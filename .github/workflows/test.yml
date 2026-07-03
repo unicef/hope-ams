@@ -78,6 +78,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
       - name: Install the latest version of uv
         uses: astral-sh/setup-uv@v8.0.0
         with:
@@ -91,17 +93,65 @@ jobs:
           python-version: 3.13.1
           activate-environment: true
 
+      - name: Restore cached vEnv
+        id: cache-venv-restore
+        uses: actions/cache/restore@v5
+        with:
+          path: |
+            ./uv-cache
+            ./tox
+          key: ${{ runner.os }}-venv-3.13
+
+      - name: Install dependencies
+        run: uv sync --cache-dir ./uv-cache --frozen
+
+      - name: Save vEnv
+        id: cache-venv-save
+        uses: actions/cache/save@v5
+        with:
+          path: |
+            ./uv-cache
+            ./tox
+          key: ${{ steps.cache-venv-restore.outputs.cache-primary-key }}
+
       - name: Run Test suite
         run: |
-              pytest tests/ --create-db -v --maxfail=5 --migrations --cov-report xml:coverage.xml --record-mode none
+          uv run tox -e tests
+
+      - name: Archive selenium results
+        uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: selenium-log-report
+          path: latest_logs
+          retention-days: 5
+
+      - name: Upload test results to Codecov
+        uses: codecov/test-results-action@v1
+        if: always()
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v6
-        continue-on-error: true
+        continue-on-error: false
         with:
           env_vars: OS,PYTHON
           fail_ci_if_error: true
-          files: coverage.xml
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: false
-          name: codecov-${{env.GITHUB_REF_NAME}}
+          name: codecov-${{ github.ref_name }}
+
+      - name: build
+        id: build
+        run: |
+            VERSION=$( uvx --with hatch-vcs hatchling metadata version )
+            COMMIT_SHA=$(git rev-parse "$GITHUB_SHA")
+
+            uv build --wheel
+
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "commit=$COMMIT_SHA" >> $GITHUB_OUTPUT
+
+            echo "::notice title=VERSION:: Build local package $VERSION"
+            echo "::notice title=COMMIT:: Build local package $COMMIT_SHA"
