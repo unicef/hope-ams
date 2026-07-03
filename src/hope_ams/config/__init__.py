@@ -73,8 +73,8 @@ CONFIG: dict[str, tuple[Any, ...]] = {
     ),
     "SECRET_KEY": (
         str,
-        "",
-        "super_secret_key_just_for_testing",
+        SmartEnv.NOTSET,
+        SmartEnv.NOTSET,
         True,
         "@see https://docs.djangoproject.com/en/5.0/ref/settings/#secret-key",
     ),
