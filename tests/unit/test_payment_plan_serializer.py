@@ -14,11 +14,14 @@ def test_valid_payload_serializes(db) -> None:
     assert serializer.is_valid(), f"Validation errors: {serializer.errors}"
 
 
-def test_creates_office(db) -> None:
+def test_lookup_office(db) -> None:
     from hope_ams.api.payment_plan_serializer import PaymentPlanSerializer
 
     office_id = uuid.uuid4()
-    payload = PlanPayloadFactory(office={"id": str(office_id), "name": "Afghanistan", "slug": "AFG"})
+    office = Office.objects.create(correlation_id=office_id, name="Afghanistan", slug="AFG")
+    payload = PlanPayloadFactory(office={"id": str(office_id)})
+    prog_id = uuid.UUID(payload["programme"]["id"])
+    Programme.objects.create(correlation_id=prog_id, name="Prog", office=office)
 
     serializer = PaymentPlanSerializer(data=payload)
     serializer.is_valid(raise_exception=True)
@@ -27,11 +30,17 @@ def test_creates_office(db) -> None:
     assert Office.objects.get(correlation_id=office_id).name == "Afghanistan"
 
 
-def test_creates_programme(db) -> None:
+def test_lookup_programme(db) -> None:
     from hope_ams.api.payment_plan_serializer import PaymentPlanSerializer
 
+    office_id = uuid.uuid4()
     prog_id = uuid.uuid4()
-    payload = PlanPayloadFactory(programme={"id": str(prog_id), "name": "Winterization"})
+    office = Office.objects.create(correlation_id=office_id, name="Office", slug="office")
+    Programme.objects.create(correlation_id=prog_id, name="Winterization", office=office)
+    payload = PlanPayloadFactory(
+        office={"id": str(office_id)},
+        programme={"id": str(prog_id)},
+    )
 
     serializer = PaymentPlanSerializer(data=payload)
     serializer.is_valid(raise_exception=True)
@@ -40,12 +49,47 @@ def test_creates_programme(db) -> None:
     assert Programme.objects.get(correlation_id=prog_id).name == "Winterization"
 
 
+def test_missing_office_raises_error(db) -> None:
+    from rest_framework.exceptions import ValidationError
+
+    from hope_ams.api.payment_plan_serializer import PaymentPlanSerializer
+
+    office_id = uuid.uuid4()
+    prog_id = uuid.uuid4()
+    payload = PlanPayloadFactory(office={"id": str(office_id)}, programme={"id": str(prog_id)})
+    Office.objects.create(correlation_id=office_id, name="Office", slug="office")
+
+    serializer = PaymentPlanSerializer(data=payload)
+    serializer.is_valid(raise_exception=True)
+    with pytest.raises(ValidationError):
+        serializer.save()
+
+
+def test_missing_programme_raises_error(db) -> None:
+    from rest_framework.exceptions import ValidationError
+
+    from hope_ams.api.payment_plan_serializer import PaymentPlanSerializer
+
+    office_id = uuid.uuid4()
+    prog_id = uuid.uuid4()
+    payload = PlanPayloadFactory(office={"id": str(office_id)}, programme={"id": str(prog_id)})
+
+    serializer = PaymentPlanSerializer(data=payload)
+    serializer.is_valid(raise_exception=True)
+    with pytest.raises(ValidationError):
+        serializer.save()
+
+
 def test_creates_payment_plan(db) -> None:
     from hope_ams.api.payment_plan_serializer import PaymentPlanSerializer
 
     pp_correlation = uuid.uuid4()
     payload = PlanPayloadFactory(pk=str(pp_correlation))
     del payload["unicef_id"]
+    office_id = uuid.UUID(payload["office"]["id"])
+    prog_id = uuid.UUID(payload["programme"]["id"])
+    office = Office.objects.create(correlation_id=office_id, name="Office", slug="office")
+    Programme.objects.create(correlation_id=prog_id, name="Prog", office=office)
 
     serializer = PaymentPlanSerializer(data=payload)
     serializer.is_valid(raise_exception=True)
@@ -65,6 +109,10 @@ def test_creates_payment_records(db) -> None:
         payments=[PaymentPayloadFactory(individual_id="IND-001", unicef_id="PMT-001", household_unicef_id="HH-001")]
     )
     payment_id = uuid.UUID(payload["payments"][0]["id"])
+    office_id = uuid.UUID(payload["office"]["id"])
+    prog_id = uuid.UUID(payload["programme"]["id"])
+    office = Office.objects.create(correlation_id=office_id, name="Office", slug="office")
+    Programme.objects.create(correlation_id=prog_id, name="Prog", office=office)
 
     serializer = PaymentPlanSerializer(data=payload)
     serializer.is_valid(raise_exception=True)
@@ -121,6 +169,10 @@ def test_pk_field_maps_to_correlation_id(db) -> None:
 
     pp_correlation = uuid.uuid4()
     payload = PlanPayloadFactory(pk=str(pp_correlation))
+    office_id = uuid.UUID(payload["office"]["id"])
+    prog_id = uuid.UUID(payload["programme"]["id"])
+    office = Office.objects.create(correlation_id=office_id, name="Office", slug="office")
+    Programme.objects.create(correlation_id=prog_id, name="Prog", office=office)
 
     serializer = PaymentPlanSerializer(data=payload)
     serializer.is_valid(raise_exception=True)
@@ -174,10 +226,19 @@ def test_serializes_all_fields(db) -> None:
     assert validated["entitlement_quantity"] is not None
 
 
+def _seed_office_and_programme(payload: dict) -> None:
+    office_id = uuid.UUID(payload["office"]["id"])
+    prog_id = uuid.UUID(payload["programme"]["id"])
+    office = Office.objects.create(correlation_id=office_id, name="Office", slug="office")
+    Programme.objects.create(correlation_id=prog_id, name="Prog", office=office)
+
+
 def test_accepts_valid_payload(client, db) -> None:
+    payload = PlanPayloadFactory()
+    _seed_office_and_programme(payload)
     response = client.post_json(
         "/api/check/",
-        PlanPayloadFactory(),
+        payload,
     )
     assert response.status_code == 201
 
@@ -185,6 +246,7 @@ def test_accepts_valid_payload(client, db) -> None:
 def test_returns_payment_plan_id(client, db) -> None:
     pp_correlation = str(uuid.uuid4())
     payload = PlanPayloadFactory(pk=pp_correlation)
+    _seed_office_and_programme(payload)
 
     response = client.post_json(
         "/api/check/",
@@ -196,9 +258,11 @@ def test_returns_payment_plan_id(client, db) -> None:
 
 
 def test_returns_payments_count(client, db) -> None:
+    payload = PlanPayloadFactory()
+    _seed_office_and_programme(payload)
     response = client.post_json(
         "/api/check/",
-        PlanPayloadFactory(),
+        payload,
     )
     assert response.json["payments_count"] == 1
 
@@ -213,19 +277,17 @@ def test_unauthenticated_returns_401(client_unauthenticated, db) -> None:
 
 
 def test_invokes_db_creations(client, db) -> None:
-    initial_ba_count = Office.objects.count()
-    initial_prog_count = Programme.objects.count()
+    payload = PlanPayloadFactory()
+    _seed_office_and_programme(payload)
     initial_pp_count = PaymentPlan.objects.count()
     initial_payment_count = Payment.objects.count()
 
     response = client.post_json(
         "/api/check/",
-        PlanPayloadFactory(),
+        payload,
     )
     assert response.status_code == 201
 
-    assert Office.objects.count() == initial_ba_count + 1
-    assert Programme.objects.count() == initial_prog_count + 1
     assert PaymentPlan.objects.count() == initial_pp_count + 1
     assert Payment.objects.count() == initial_payment_count + 1
 
@@ -234,6 +296,10 @@ def test_multiple_payments_persisted(db) -> None:
     from hope_ams.api.payment_plan_serializer import PaymentPlanSerializer
 
     payload = PlanPayloadFactory(num_payments=2)
+    office_id = uuid.UUID(payload["office"]["id"])
+    prog_id = uuid.UUID(payload["programme"]["id"])
+    office = Office.objects.create(correlation_id=office_id, name="Office", slug="office")
+    Programme.objects.create(correlation_id=prog_id, name="Prog", office=office)
     serializer = PaymentPlanSerializer(data=payload)
     serializer.is_valid(raise_exception=True)
     result = serializer.save()
@@ -242,18 +308,19 @@ def test_multiple_payments_persisted(db) -> None:
 
 
 @pytest.mark.django_db
-def test_update_existing_office(client, db) -> None:
-    existing_ba = Office.objects.create(correlation_id=uuid.uuid4(), name="Old Name", slug="old-slug")
+def test_lookup_existing_office(client, db) -> None:
+    existing_ba = Office.objects.create(correlation_id=uuid.uuid4(), name="Original", slug="original")
 
-    payload = PlanPayloadFactory(office={"id": str(existing_ba.correlation_id), "name": "Afghanistan", "slug": "AFG"})
+    payload = PlanPayloadFactory(office={"id": str(existing_ba.correlation_id)})
+    prog_id = uuid.UUID(payload["programme"]["id"])
+    Programme.objects.create(correlation_id=prog_id, name="Prog", office=existing_ba)
 
     response = client.post_json(
         "/api/check/",
         payload,
     )
     assert response.status_code == 201
-    updated_ba = Office.objects.get(pk=existing_ba.pk)
-    assert updated_ba.name == "Afghanistan"
+    assert Office.objects.get(pk=existing_ba.pk).name == "Original"
 
 
 @pytest.mark.django_db
@@ -364,6 +431,10 @@ def test_payment_without_id_generates_uuid(db) -> None:
 
     payload = PlanPayloadFactory()
     del payload["payments"][0]["id"]
+    office_id = uuid.UUID(payload["office"]["id"])
+    prog_id = uuid.UUID(payload["programme"]["id"])
+    office = Office.objects.create(correlation_id=office_id, name="Office", slug="office")
+    Programme.objects.create(correlation_id=prog_id, name="Prog", office=office)
 
     serializer = PaymentPlanSerializer(data=payload)
     assert serializer.is_valid(), f"Errors: {serializer.errors}"

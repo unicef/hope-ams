@@ -9,13 +9,10 @@ from hope_ams.models.choices import AnomalyStatus
 
 class OfficeItemSerializer(serializers.Serializer):
     id = serializers.UUIDField()
-    name = serializers.CharField()
-    slug = serializers.CharField()
 
 
 class ProgrammeItemSerializer(serializers.Serializer):
     id = serializers.UUIDField()
-    name = serializers.CharField()
 
 
 class VerificationItemSerializer(serializers.Serializer):

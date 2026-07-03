@@ -4,14 +4,25 @@ from unittest.mock import patch
 import pytest
 from django_webtest import DjangoTestApp
 
+from hope_ams.models import Office, Programme
 from tests._extras.testutils.factories import PlanPayloadFactory, RunPayloadFactory
+
+
+def _seed_run_objects(payload: dict) -> None:
+    pp = payload["payment_plan"]
+    office_id = uuid.UUID(pp["office"]["id"])
+    prog_id = uuid.UUID(pp["programme"]["id"])
+    office, _ = Office.objects.get_or_create(correlation_id=office_id, defaults={"name": "Office", "slug": "office"})
+    Programme.objects.get_or_create(correlation_id=prog_id, defaults={"name": "Prog", "office": office})
 
 
 @patch("hope_ams.api.views.process_analysis.delay")
 def test_submit_prevention(mock_delay, client, db) -> None:
+    payload = RunPayloadFactory()
+    _seed_run_objects(payload)
     response = client.post_json(
         "/api/run/",
-        RunPayloadFactory(),
+        payload,
     )
     assert response.status_code == 202
     data_dict = response.json
@@ -22,9 +33,11 @@ def test_submit_prevention(mock_delay, client, db) -> None:
 
 @patch("hope_ams.api.views.process_analysis.delay")
 def test_submit_detection(mock_delay, client, db) -> None:
+    payload = RunPayloadFactory(phase="detection")
+    _seed_run_objects(payload)
     response = client.post_json(
         "/api/run/",
-        RunPayloadFactory(phase="detection"),
+        payload,
     )
     assert response.status_code == 202
 
@@ -84,15 +97,72 @@ def test_submit_missing_payments(mock_delay, client, db) -> None:
     mock_delay.assert_not_called()
 
 
+@patch("hope_ams.api.views.process_analysis.delay")
+def test_submit_run_missing_office(mock_delay, client, db) -> None:
+    payload = RunPayloadFactory()
+    response = client.post_json(
+        "/api/run/",
+        payload,
+        expect_errors=True,
+    )
+    assert response.status_code == 400
+    assert "does not exist" in str(response.json).lower()
+    mock_delay.assert_not_called()
+
+
+@patch("hope_ams.api.views.process_analysis.delay")
+def test_submit_run_missing_programme(mock_delay, client, db) -> None:
+    payload = RunPayloadFactory()
+    office_id = uuid.UUID(payload["payment_plan"]["office"]["id"])
+    Office.objects.create(correlation_id=office_id, name="Office", slug="office")
+    response = client.post_json(
+        "/api/run/",
+        payload,
+        expect_errors=True,
+    )
+    assert response.status_code == 400
+    assert "does not exist" in str(response.json).lower()
+    mock_delay.assert_not_called()
+
+
 def test_submit_check(client, db) -> None:
+    payload = PlanPayloadFactory()
+    office_id = uuid.UUID(payload["office"]["id"])
+    prog_id = uuid.UUID(payload["programme"]["id"])
+    office = Office.objects.create(correlation_id=office_id, name="Office", slug="office")
+    Programme.objects.create(correlation_id=prog_id, name="Prog", office=office)
     response = client.post_json(
         "/api/check/",
-        PlanPayloadFactory(),
+        payload,
     )
     assert response.status_code == 201
     data_dict = response.json
     assert "correlation_id" in data_dict
     assert "id" in data_dict
+
+
+def test_submit_check_missing_office(client, db) -> None:
+    payload = PlanPayloadFactory()
+    response = client.post_json(
+        "/api/check/",
+        payload,
+        expect_errors=True,
+    )
+    assert response.status_code == 400
+    assert "office" in response.json or "does not exist" in str(response.json)
+
+
+def test_submit_check_missing_programme(client, db) -> None:
+    payload = PlanPayloadFactory()
+    office_id = uuid.UUID(payload["office"]["id"])
+    Office.objects.create(correlation_id=office_id, name="Office", slug="office")
+    response = client.post_json(
+        "/api/check/",
+        payload,
+        expect_errors=True,
+    )
+    assert response.status_code == 400
+    assert "programme" in response.json or "does not exist" in str(response.json)
 
 
 def test_submit_check_unauthenticated(client_no_auth, db) -> None:

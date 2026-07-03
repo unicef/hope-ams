@@ -15,13 +15,10 @@ from hope_ams.models import (
 
 class OfficeItemSerializer(serializers.Serializer):
     id = serializers.UUIDField()
-    name = serializers.CharField()
-    slug = serializers.CharField()
 
 
 class ProgrammeItemSerializer(serializers.Serializer):
     id = serializers.UUIDField()
-    name = serializers.CharField()
 
 
 class PaymentPlanPaymentSerializer(serializers.Serializer):
@@ -110,6 +107,16 @@ class PaymentPlanSerializer(serializers.Serializer):
 
         return super().to_internal_value(data)  # type: ignore[no-any-return]
 
+    def _get_related_object(
+        self, model: type[Office | Programme], correlation_id: uuid.UUID, field: str
+    ) -> Office | Programme:
+        try:
+            return model.objects.get(correlation_id=correlation_id)
+        except model.DoesNotExist:
+            raise serializers.ValidationError(
+                {field: f"{model.__name__} with correlation_id {correlation_id!r} does not exist."}
+            )
+
     def create(self, validated_data: dict) -> PaymentPlan:
         office_data = validated_data.pop("office")
         programme_data = validated_data.pop("programme")
@@ -117,23 +124,10 @@ class PaymentPlanSerializer(serializers.Serializer):
 
         pp_correlation_id = self._pp_correlation_id or uuid.uuid4()
 
+        office = self._get_related_object(Office, office_data["id"], "office")
+        programme = self._get_related_object(Programme, programme_data["id"], "programme")
+
         with transaction.atomic():
-            office, _ = Office.objects.update_or_create(
-                correlation_id=office_data["id"],
-                defaults={
-                    "name": office_data.get("name", ""),
-                    "slug": str(office_data.get("slug", ""))[:50] or f"auto-{uuid.uuid4().hex[:7]}",
-                },
-            )
-
-            programme, _ = Programme.objects.update_or_create(
-                correlation_id=programme_data["id"],
-                defaults={
-                    "name": programme_data.get("name", ""),
-                    "office": office,
-                },
-            )
-
             pp_defaults = {
                 "unicef_id": validated_data.pop("unicef_id", ""),
                 "status": validated_data.pop("status", ""),

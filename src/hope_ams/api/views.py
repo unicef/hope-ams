@@ -66,16 +66,22 @@ def submit_run(request: "Request") -> "HttpResponse":
 
     with transaction.atomic():
         office_data = data["payment_plan"]["office"]
-        office, _ = Office.objects.update_or_create(
-            correlation_id=office_data["id"],
-            defaults={"name": office_data["name"], "slug": office_data["slug"]},
-        )
+        try:
+            office = Office.objects.get(correlation_id=office_data["id"])
+        except Office.DoesNotExist:
+            return Response(
+                {"error": f"Office with correlation_id {office_data['id']!r} does not exist."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         programme_data = data["payment_plan"]["programme"]
-        programme, _ = Programme.objects.update_or_create(
-            correlation_id=programme_data["id"],
-            defaults={"name": programme_data["name"], "office": office},
-        )
+        try:
+            programme = Programme.objects.get(correlation_id=programme_data["id"])
+        except Programme.DoesNotExist:
+            return Response(
+                {"error": f"Programme with correlation_id {programme_data['id']!r} does not exist."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         pp_data = data["payment_plan"]
         payment_plan, _ = PaymentPlan.objects.update_or_create(

@@ -29,18 +29,12 @@ def test_full_structure() -> None:
     assert payload["unicef_id"].startswith("PP-")
 
     ba = payload["office"]
-    assert set(ba) == {"id", "name", "slug"}
+    assert "id" in ba
     assert uuid.UUID(str(ba["id"]))
-    assert isinstance(ba["name"], str)
-    assert ba["name"].startswith("Office-")
-    assert isinstance(ba["slug"], str)
-    assert ba["slug"].startswith("office-")
 
     prog = payload["programme"]
-    assert set(prog) == {"id", "name"}
+    assert "id" in prog
     assert uuid.UUID(str(prog["id"]))
-    assert isinstance(prog["name"], str)
-    assert prog["name"].startswith("Programme-")
 
     assert payload["status"] == "locked"
     assert payload["dispersion_start_date"] is None
@@ -111,8 +105,13 @@ def test_payment_full_structure() -> None:
 
 def test_passes_payment_plan_serializer_validation(db) -> None:
     from hope_ams.api.payment_plan_serializer import PaymentPlanSerializer
+    from hope_ams.models import Office, Programme
 
     payload = PlanPayloadFactory()
+    office_id = uuid.UUID(payload["office"]["id"])
+    prog_id = uuid.UUID(payload["programme"]["id"])
+    office = Office.objects.create(correlation_id=office_id, name="Office", slug="office")
+    Programme.objects.create(correlation_id=prog_id, name="Prog", office=office)
     serializer = PaymentPlanSerializer(data=payload)
     assert serializer.is_valid(), f"Errors: {serializer.errors}"
 
@@ -122,12 +121,14 @@ def test_creates_orm_objects(db) -> None:
     from hope_ams.models import Office, Payment, PaymentPlan, Programme
 
     payload = PlanPayloadFactory(num_payments=2)
+    office_id = uuid.UUID(payload["office"]["id"])
+    prog_id = uuid.UUID(payload["programme"]["id"])
+    office = Office.objects.create(correlation_id=office_id, name="Office", slug="office")
+    Programme.objects.create(correlation_id=prog_id, name="Prog", office=office)
     serializer = PaymentPlanSerializer(data=payload)
     serializer.is_valid(raise_exception=True)
     pp = serializer.save()
 
-    assert Office.objects.count() == 1
-    assert Programme.objects.count() == 1
     assert PaymentPlan.objects.count() == 1
     assert Payment.objects.count() == 2
     assert pp.payments.count() == 2
@@ -153,14 +154,13 @@ def test_override_top_level() -> None:
 
 
 def test_override_office() -> None:
-    p = PlanPayloadFactory(office={"id": str(uuid.uuid4()), "name": "Afghanistan", "slug": "AFG"})
-    assert p["office"]["name"] == "Afghanistan"
-    assert p["office"]["slug"] == "AFG"
+    p = PlanPayloadFactory(office={"id": str(uuid.uuid4())})
+    assert uuid.UUID(p["office"]["id"])
 
 
 def test_override_programme() -> None:
-    p = PlanPayloadFactory(programme={"id": str(uuid.uuid4()), "name": "Winterization"})
-    assert p["programme"]["name"] == "Winterization"
+    p = PlanPayloadFactory(programme={"id": str(uuid.uuid4())})
+    assert uuid.UUID(p["programme"]["id"])
 
 
 def test_override_payments_list() -> None:
