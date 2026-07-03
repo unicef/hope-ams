@@ -8,3 +8,4 @@ node_modules
 !~.semgrep
 !.github
 !tests/.coveragerc
+site/
