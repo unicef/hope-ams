@@ -1,7 +1,7 @@
 
 [<img src="./docs/src/img/badge.png" style="margin-left: auto;margin-right: auto;width:300px;display:block"/>](./docs/src/img/hope_workspace.png)
 
-# Anomaly Management System (AMS)
+# Anomalies Management System (AMS)
 
 ---
 
