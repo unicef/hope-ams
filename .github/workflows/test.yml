@@ -1,57 +1,95 @@
-name: "TESTS"
+name: Test
 
 on:
-  workflow_call:
+  workflow_dispatch:
+  push:
+    branches:
+      - develop
+      - master
+      - staging
+      - release/*
+      - feature/*
+      - bugfix/*
+      - hotfix/*
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}"
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
 
 permissions:
-  contents: read
+  id-token: write
+  attestations: write
+
 
 jobs:
-  tests:
+  changes:
+    if: (github.event_name != 'pull_request'
+            || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name)
+            || github.event_name == 'create'
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    defaults:
+      run:
+        shell: bash
+    outputs:
+      run_tests: ${{ steps.changes.outputs.run_tests }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+      - id: changes
+        name: Check for file changes
+        uses: dorny/paths-filter@v4
+        with:
+          base: ${{ github.ref }}
+          token: ${{ github.token }}
+          filters: .github/file-filters.yml
+
+  test:
+    needs: [ changes ]
+    if: needs.changes.outputs.run_tests == 'true'
     runs-on: ubuntu-latest
     services:
       redis:
         image: redis:7
         ports:
-          - 6379:6379
+          - 16379:6379
       db:
-        image: postgres:15
+        image: postgres:14
         env:
-          POSTGRES_DB: ams
+          POSTGRES_DATABASE: country_workspace
           POSTGRES_PASSWORD: postgres
-          POSTGRES_USER: postgres
+          POSTGRES_USERNAME: postgres
         ports:
-          - 5432:5432
+          - 15432:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
     env:
-      DATABASE_URL: postgres://postgres:postgres@localhost:5432/ams
-      CELERY_BROKER_URL: redis://localhost:6379/0
-      CACHE_URL: redis://localhost:6379/1
-      SECRET_KEY: ci-secret-key-for-testing
+      DATABASE_URL: postgres://postgres:postgres@localhost:15432/country_workspace
+      CELERY_BROKER_URL: redis://localhost:16379/1
+      CACHE_URL: redis://localhost:16379/2
+      DOCKER_BUILDKIT: 1
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - uses: astral-sh/setup-uv@v7
+      - name: Run Test suite
+        run: |
+              pytest tests/ --create-db -v --maxfail=5 --migrations --cov-report xml:coverage.xml --record-mode none
 
-      - uses: actions/cache/restore@v5
-        id: restore-cache
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v6
+        continue-on-error: true
         with:
-          path: .venv
-          key: ${{ runner.os }}-${{ hashFiles('**/uv.lock') }}
-
-      - name: Install dependencies
-        run: uv sync --frozen
-
-      - uses: actions/cache/save@v5
-        if: always() && steps.restore-cache.outputs.cache-hit != 'true'
-        with:
-          path: .venv
-          key: ${{ runner.os }}-${{ hashFiles('**/uv.lock') }}
-
-      - name: Run tests
-        run: uv run tox -e tests -- pytest tests -q -x --no-migrations --create-db --reuse-db
+          env_vars: OS,PYTHON
+          fail_ci_if_error: true
+          files: coverage.xml
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: false
+          name: codecov-${{env.GITHUB_REF_NAME}}
