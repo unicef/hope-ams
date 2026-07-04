@@ -25,6 +25,13 @@ CONFIG: dict[str, tuple[Any, ...]] = {
         "Enable AnyUserAuthBackend so admin login works without creating users first",
     ),
     "AUTHENTICATION_BACKENDS": (list, [], setting("authentication-backends")),
+    "AZURE_CLIENT_ID": (str, "", "", False, "Azure AD client ID for SSO"),
+    "AZURE_CLIENT_SECRET": (str, "", "", False, "Azure AD client secret for SSO"),
+    "AZURE_TENANT_ID": (str, "", "", False, "Azure AD tenant ID for SSO"),
+    "SUPERUSERS": (list, [], [], False, "Emails/usernames auto-granted superuser"),
+    "SOCIAL_AUTH_REDIRECT_IS_HTTPS": (bool, True, True, False, ""),
+    "SOCIAL_AUTH_RAISE_EXCEPTIONS": (bool, False, False, False, ""),
+    "SOCIAL_AUTH_LOGIN_URL": (str, "/login/", "/login/", False, "Social auth login URL"),
     "CACHE_URL": (
         str,
         "redis://localhost:6379/0",
