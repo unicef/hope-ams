@@ -1,0 +1,12 @@
+{% extends "admin/login.html" %}
+{% load i18n feature_flags %}
+{% block login_before %}
+    {% flag_enabled 'LOCAL_LOGIN' as FLAG_LOCAL_LOGIN %}
+    <div class="flex flex-col items-center gap-4 mb-6">
+        <a class="button primary w-full text-center"
+           href="{% url 'social:begin' 'azuread-tenant-oauth2' %}">{% translate "Sign in with UNICEF SSO" %}</a>
+        {% if not FLAG_LOCAL_LOGIN %}
+            <div class="divider">{% translate "or" %}</div>
+        {% endif %}
+    </div>
+{% endblock %}

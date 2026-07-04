@@ -26,7 +26,9 @@ dependencies = [
   "django-adminfilters>=2.7",
   "django-celery-beat>=2.6",
   "django-celery-results>=2.5.1",
+  "django-constance[database]>=4.3.5",
   "django-environ>=0.11.2",
+  "django-flags>=5",
   "django-smart-env>=0.1",
   "django-strategy-field>=3.2.1",
   "django-unfold>=0.97",
@@ -37,6 +39,8 @@ dependencies = [
   "redis",
   "requests>=2.32",
   "sentry-sdk>=2.7.1",
+  "social-auth-app-django>=5.4",
+  "unicef-security>=1.5",
 ]
 urls.Documentation = "https://unicef.github.io/hope-ams/"
 urls.Homepage = "https://github.com/unicef/hope-ams"

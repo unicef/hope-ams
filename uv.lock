@@ -476,6 +476,15 @@ wheels = [
 ]
 
 [[package]]
+name = "defusedxml"
+version = "0.7.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/0f/d5/c66da9b79e5bdb124974bfe172b4daf3c984ebd9c2a06e2b8a4dc7331c72/defusedxml-0.7.1.tar.gz", hash = "sha256:1bb3032db185915b62d7c6209c5a8792be6a32ab2fedacc84e01b52c51aa3e69", size = 75520, upload-time = "2021-03-08T10:59:26.269Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/07/6c/aa3f2f849e01cb6a001cd8554a88d4c77c5c1a31c95bdf1cf9301e6d9ef4/defusedxml-0.7.1-py2.py3-none-any.whl", hash = "sha256:a352e7e428770286cc899e2542b6cdaedb2b4953ff269a210103ec58f6198a61", size = 25604, upload-time = "2021-03-08T10:59:24.45Z" },
+]
+
+[[package]]
 name = "diff-cover"
 version = "10.3.0"
 source = { registry = "https://pypi.org/simple" }
@@ -569,12 +578,58 @@ wheels = [
 ]
 
 [[package]]
+name = "django-constance"
+version = "4.3.5"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/9c/95/8eff746544ba8958f431f4cfb162fd632db5f914b05b6a355a98eaf45cfd/django_constance-4.3.5.tar.gz", hash = "sha256:081177483d272b664cf768deae76fc2fbb0a777076f45620b6fde4d9075ee2b3", size = 181943, upload-time = "2026-03-15T11:23:50.799Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/61/aa/3ff4198d02c0cb23c595fcfbed364bcf03b80f9109b7b971eaa34604c349/django_constance-4.3.5-py3-none-any.whl", hash = "sha256:c28f360c2822112772a3e4caf02db758c82cca8de7d0b9f648fef371bf4b8bc6", size = 66907, upload-time = "2026-03-15T11:23:49.166Z" },
+]
+
+[[package]]
+name = "django-countries"
+version = "9.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "asgiref" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/6e/c1/1e8feb818164c3f23465c08cc3bc1cd7da7101506268a138a1b92ea40339/django_countries-9.0.0.tar.gz", hash = "sha256:a993416af08a8a4e6e866d56b71c7ce92351c81a2543da213cd7899917567a42", size = 614144, upload-time = "2026-06-10T00:39:28.841Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/5c/bb/5a17b339852f6486d02b4dd0033132082976c71f049ee909ccb42917be52/django_countries-9.0.0-py3-none-any.whl", hash = "sha256:21fce461733c856355c487d1f24b71338599482505004a0c2e521fd574a59fb1", size = 931759, upload-time = "2026-06-10T00:39:26.851Z" },
+]
+
+[[package]]
 name = "django-environ"
 version = "0.14.0"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/57/e1/4c4ddcf6e90f023e89edb1d92f9a7fffce61ad4b691df497f2f5c0be6e26/django_environ-0.14.0.tar.gz", hash = "sha256:b6c48d93b9d2ff8a3ea14099e90c35aa4f101c1b4d5f262dfee0d27b06742ed7", size = 60417, upload-time = "2026-06-18T22:49:55.847Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/1a/fe/67b423fc30f16d10259e901320fbc121746bf168aaaad9043e6ebb0110c1/django_environ-0.14.0-py3-none-any.whl", hash = "sha256:8dbe8a57f0a540ab8abd6f54f230de5e99e3a2c9d797cb9caecb037bca3d47d8", size = 20934, upload-time = "2026-06-18T22:49:54.355Z" },
+]
+
+[[package]]
+name = "django-flags"
+version = "5.2.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "django" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/72/e7/da3a2e006a670c4c275fa0abd15ab4715576bb933d9e97ae4f9477cd8a88/django_flags-5.2.0.tar.gz", hash = "sha256:a3aee5e0d11e24e35f5ae4a423d52cad721f639181c1b1251e0148d8530a3f81", size = 246806, upload-time = "2026-02-10T16:51:57.505Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/15/e6/94dcb6cea2ede9adcd406f48ff04ce80bdb5a919306f1aded8d84e27f807/django_flags-5.2.0-py3-none-any.whl", hash = "sha256:aa22543410f68a4082c576f3be469ea67a51c933f8a43eb8b10f6236f158e17e", size = 42744, upload-time = "2026-02-10T16:51:56.386Z" },
+]
+
+[[package]]
+name = "django-picklefield"
+version = "3.4.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "django" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/93/03/13114bccbd1ec8c026ac1ff33dae75ae6c6a5632e4769ee9cda283b9f57e/django_picklefield-3.4.0.tar.gz", hash = "sha256:3a1f740536c0e60d0dba43aa89ccdbe86760d4c3f8ec47799eae122baa741d0a", size = 12555, upload-time = "2025-11-27T03:11:53.13Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/79/b7/139eb1419ca7b27fd714925b8d0eed6efb592479dcf2155fed6c0c87c956/django_picklefield-3.4.0-py3-none-any.whl", hash = "sha256:929bcfbae5b48bd22a52bc04521fdfdd152eee36abb9f20228f9480f9df65f45", size = 10031, upload-time = "2025-11-27T03:11:51.937Z" },
 ]
 
 [[package]]
@@ -794,7 +849,9 @@ dependencies = [
     { name = "django-adminfilters" },
     { name = "django-celery-beat" },
     { name = "django-celery-results" },
+    { name = "django-constance" },
     { name = "django-environ" },
+    { name = "django-flags" },
     { name = "django-smart-env" },
     { name = "django-strategy-field" },
     { name = "django-unfold" },
@@ -805,6 +862,8 @@ dependencies = [
     { name = "redis" },
     { name = "requests" },
     { name = "sentry-sdk" },
+    { name = "social-auth-app-django" },
+    { name = "unicef-security" },
 ]
 
 [package.dev-dependencies]
@@ -860,7 +919,9 @@ requires-dist = [
     { name = "django-adminfilters", specifier = ">=2.7" },
     { name = "django-celery-beat", specifier = ">=2.6" },
     { name = "django-celery-results", specifier = ">=2.5.1" },
+    { name = "django-constance", extras = ["database"], specifier = ">=4.3.5" },
     { name = "django-environ", specifier = ">=0.11.2" },
+    { name = "django-flags", specifier = ">=5.0" },
     { name = "django-smart-env", specifier = ">=0.1" },
     { name = "django-strategy-field", specifier = ">=3.2.1" },
     { name = "django-unfold", specifier = ">=0.97" },
@@ -871,6 +932,8 @@ requires-dist = [
     { name = "redis" },
     { name = "requests", specifier = ">=2.32" },
     { name = "sentry-sdk", specifier = ">=2.7.1" },
+    { name = "social-auth-app-django", specifier = ">=5.4" },
+    { name = "unicef-security", specifier = ">=1.5" },
 ]
 
 [package.metadata.requires-dev]
@@ -1199,6 +1262,15 @@ wheels = [
 ]
 
 [[package]]
+name = "oauthlib"
+version = "3.3.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/0b/5f/19930f824ffeb0ad4372da4812c50edbd1434f678c90c2733e1188edfc63/oauthlib-3.3.1.tar.gz", hash = "sha256:0f0f8aa759826a193cf66c12ea1af1637f87b9b4622d46e866952bb022e538c9", size = 185918, upload-time = "2025-06-19T22:48:08.269Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/be/9c/92789c596b8df838baa98fa71844d84283302f7604ed565dafe5a6b5041a/oauthlib-3.3.1-py3-none-any.whl", hash = "sha256:88119c938d2b8fb88561af5f6ee0eec8cc8d552b7bb1f712743136eb7523b7a1", size = 160065, upload-time = "2025-06-19T22:48:06.508Z" },
+]
+
+[[package]]
 name = "packaging"
 version = "26.2"
 source = { registry = "https://pypi.org/simple" }
@@ -1367,6 +1439,20 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/c3/b2/bc9c9196916376152d655522fdcebac55e66de6603a76a02bca1b6414f6c/pygments-2.20.0.tar.gz", hash = "sha256:6757cd03768053ff99f3039c1a36d6c0aa0b263438fcab17520b30a303a82b5f", size = 4955991, upload-time = "2026-03-29T13:29:33.898Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/f4/7e/a72dd26f3b0f4f2bf1dd8923c85f7ceb43172af56d63c7383eb62b332364/pygments-2.20.0-py3-none-any.whl", hash = "sha256:81a9e26dd42fd28a23a2d169d86d7ac03b46e2f8b59ed4698fb4785f946d0176", size = 1231151, upload-time = "2026-03-29T13:29:30.038Z" },
+]
+
+[[package]]
+name = "pyjwt"
+version = "2.13.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/3b/81/58d0ac84e1ef3a3843791d6954d94c0b33d526c75eeb1efbce9d0a4c4077/pyjwt-2.13.0.tar.gz", hash = "sha256:41571c89ca91598c79e8ef18a2d07367d4810fbbd6f637794879baf1b7703423", size = 107515, upload-time = "2026-05-21T19:54:36.618Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a3/5e/ecf12fdb62546d64385c158514e9b2b671f7832108ef2ecd2020ce0af2d1/pyjwt-2.13.0-py3-none-any.whl", hash = "sha256:66adcc2aff09b3f1bbd95fc1e1577df8ac8723c978552fd43304c8a290ac5728", size = 31274, upload-time = "2026-05-21T19:54:35.362Z" },
+]
+
+[package.optional-dependencies]
+crypto = [
+    { name = "cryptography" },
 ]
 
 [[package]]
@@ -1584,6 +1670,18 @@ django = [
 ]
 
 [[package]]
+name = "python3-openid"
+version = "3.2.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "defusedxml" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/5f/4a/29feb8da6c44f77007dcd29518fea73a3d5653ee02a587ae1f17f1f5ddb5/python3-openid-3.2.0.tar.gz", hash = "sha256:33fbf6928f401e0b790151ed2b5290b02545e8775f982485205a066f874aaeaf", size = 305600, upload-time = "2020-06-29T12:15:49.026Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e0/a5/c6ba13860bdf5525f1ab01e01cc667578d6f1efc8a1dba355700fb04c29b/python3_openid-3.2.0-py3-none-any.whl", hash = "sha256:6626f771e0417486701e0b4daff762e7212e820ca5b29fcc0d05f6f8736dfa6b", size = 133681, upload-time = "2020-06-29T12:15:47.502Z" },
+]
+
+[[package]]
 name = "pywin32"
 version = "312"
 source = { registry = "https://pypi.org/simple" }
@@ -1653,6 +1751,19 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/92/32/587625f91f9a0a3d84688bf9cfc4b2480a7e8ec327cefd0ff2ac891fd2cf/requests-mock-1.12.1.tar.gz", hash = "sha256:e9e12e333b525156e82a3c852f22016b9158220d2f47454de9cae8a77d371401", size = 60901, upload-time = "2024-03-29T03:54:29.446Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/97/ec/889fbc557727da0c34a33850950310240f2040f3b1955175fdb2b36a8910/requests_mock-1.12.1-py2.py3-none-any.whl", hash = "sha256:b1e37054004cdd5e56c84454cc7df12b25f90f382159087f4b6915aaeef39563", size = 27695, upload-time = "2024-03-29T03:54:27.64Z" },
+]
+
+[[package]]
+name = "requests-oauthlib"
+version = "2.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "oauthlib" },
+    { name = "requests" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/42/f2/05f29bc3913aea15eb670be136045bf5c5bbf4b99ecb839da9b422bb2c85/requests-oauthlib-2.0.0.tar.gz", hash = "sha256:b3dffaebd884d8cd778494369603a9e7b58d29111bf6b41bdc2dcd87203af4e9", size = 55650, upload-time = "2024-03-22T20:32:29.939Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3b/5d/63d4ae3b9daea098d5d6f5da83984853c1bbacd5dc826764b249fe119d24/requests_oauthlib-2.0.0-py2.py3-none-any.whl", hash = "sha256:7dd8a5c40426b779b0868c404bdef9768deccf22749cde15852df527e6269b36", size = 24179, upload-time = "2024-03-22T20:32:28.055Z" },
 ]
 
 [[package]]
@@ -1726,6 +1837,38 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/94/e7/b2c673351809dca68a0e064b6af791aa332cf192da575fd474ed7d6f16a2/six-1.17.0.tar.gz", hash = "sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81", size = 34031, upload-time = "2024-12-04T17:35:28.174Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b7/ce/149a00dd41f10bc29e5921b496af8b574d8413afcd5e30dfa0ed46c2cc5e/six-1.17.0-py2.py3-none-any.whl", hash = "sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274", size = 11050, upload-time = "2024-12-04T17:35:26.475Z" },
+]
+
+[[package]]
+name = "social-auth-app-django"
+version = "6.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "asgiref" },
+    { name = "django" },
+    { name = "social-auth-core" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/e0/8e/60593750bf1e2734e9b2b3ff85b685038fcc35446c5541e08fa4cdec17b9/social_auth_app_django-6.0.0.tar.gz", hash = "sha256:421916bf136c77a8683cac7505a3b2ecf7d5c8ec18455ffa883f2cb5161847b1", size = 31297, upload-time = "2026-06-23T15:35:44.429Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d5/79/5ae902ba623c906cfd172a2ed21d2e481f7cb1752f89fb5ce305f387d40a/social_auth_app_django-6.0.0-py3-none-any.whl", hash = "sha256:6974cb00bb462149b8384448c0aff6fb8e6c2b00efacca40d0270695d416cceb", size = 29464, upload-time = "2026-06-23T15:35:43.462Z" },
+]
+
+[[package]]
+name = "social-auth-core"
+version = "5.0.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "cryptography" },
+    { name = "defusedxml" },
+    { name = "oauthlib" },
+    { name = "pyjwt", extra = ["crypto"] },
+    { name = "python3-openid" },
+    { name = "requests" },
+    { name = "requests-oauthlib" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/a9/b7/f2878b7ce6a5195aa2f14eef8337f2734940b11d68e14a36308770b633d7/social_auth_core-5.0.2.tar.gz", hash = "sha256:f53930c9b2a86ee0fc8e8fb0eac79221cfc2f017d9efb578691e5a3e2cf36784", size = 260859, upload-time = "2026-06-26T07:25:19.522Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f9/04/7530b56a1eaa33bac6595739b19e4ebe3fe9d35a5c5f188790de9d3c26de/social_auth_core-5.0.2-py3-none-any.whl", hash = "sha256:c7250f0c1d539bb1420a7d165b240f066d866ec19d9b829e660260f024f0e2d3", size = 459405, upload-time = "2026-06-26T07:25:18.009Z" },
 ]
 
 [[package]]
@@ -1976,6 +2119,27 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/81/5b/879b2f932adfa7a053c360d50bc896c977fa6426109185f7c12ebdd0cb9d/tzlocal-5.4.4.tar.gz", hash = "sha256:8dbb8660838688a7b6ba4fed31d18dedf842afb4d47ca050d6d891c2c15f3be4", size = 31170, upload-time = "2026-06-29T08:03:40.026Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/9e/a4/017a7a6cbe387d961a688ec31364ae60a5c4e22c96ae9921b79a947c855d/tzlocal-5.4.4-py3-none-any.whl", hash = "sha256:aae09f0126a8a86fa736be266eb4a471380d26a0de3bc14844e7821fee3e2a15", size = 18115, upload-time = "2026-06-29T08:03:38.666Z" },
+]
+
+[[package]]
+name = "unicef-security"
+version = "1.10.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "celery" },
+    { name = "cryptography" },
+    { name = "django" },
+    { name = "django-admin-extra-buttons" },
+    { name = "django-constance" },
+    { name = "django-countries" },
+    { name = "django-picklefield" },
+    { name = "pyjwt" },
+    { name = "requests" },
+    { name = "social-auth-app-django" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/b3/7a/b84a40197750aaabda1f9f4eb7e4c9845b28db44e1561917a396f926911f/unicef_security-1.10.0.tar.gz", hash = "sha256:6df9c18914b192670fa885e6ccb0ece06783f447cd0094010f3fc66338ed2227", size = 14392, upload-time = "2026-06-30T15:11:32.868Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/63/7f/757df777aaa82320175a46015d67b5f074ba47e73c031e1226a931cf5cbf/unicef_security-1.10.0-py2.py3-none-any.whl", hash = "sha256:1a5751024a10694b55f8963201c6c6f6045fb43e84a3036a41f73fe2f8ce9a66", size = 23321, upload-time = "2026-06-30T15:11:31.651Z" },
 ]
 
 [[package]]
