@@ -21,7 +21,7 @@ classifiers = [
 dynamic = [ "version" ]
 dependencies = [
   "celery>=5.4",
-  "django<6",
+  "django<7",
   "django-admin-extra-buttons>=2.2.1",
   "django-adminfilters>=2.7",
   "django-celery-beat>=2.6",
