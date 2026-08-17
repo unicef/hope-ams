@@ -4,12 +4,12 @@ from hope_ams.detection.rules.registry import rule_registry as registry
 
 def test_registry_has_prevention_rules() -> None:
     rules = registry.get_all("prevention")
-    assert len(rules) == 1
+    assert len(rules) == 5
 
 
 def test_registry_has_detection_rules() -> None:
     rules = registry.get_all("detection")
-    assert len(rules) == 0
+    assert len(rules) == 3
 
 
 def test_registry_get_enabled_filters_disabled() -> None:
