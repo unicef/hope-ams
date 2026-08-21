@@ -11,7 +11,7 @@ pytestmark = pytest.mark.django_db
 
 def _run_upgrade() -> None:
     with patch("hope_ams.management.commands.upgrade.call_command"):
-        call_command("upgrade", verbosity=0)
+        call_command("upgrade", verbosity=0, static=False)
 
 
 def test_upgrade_creates_rule_config_for_each_rule() -> None:
