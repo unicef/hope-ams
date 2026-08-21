@@ -1,5 +1,17 @@
 from hope_ams.detection.rules.registry import rule_registry as registry
 
+from .conflicted_payment_delivered import ConflictedPaymentDeliveredRule
+from .duplicate_payment_channel import DuplicatePaymentChannelRule
+from .missing_budget_commitment import MissingBudgetCommitmentRule
+from .missing_identity_data import MissingIdentityDataRule
 from .pregnancy_validity import PregnancyValidityRule
+from .shared_recipient_identifier import SharedRecipientIdentifierRule
+from .unreconciled_payment import UnreconciledPaymentRule
 
 registry.register(PregnancyValidityRule)
+registry.register(UnreconciledPaymentRule)
+registry.register(DuplicatePaymentChannelRule)
+registry.register(ConflictedPaymentDeliveredRule)
+registry.register(MissingIdentityDataRule)
+registry.register(SharedRecipientIdentifierRule)
+registry.register(MissingBudgetCommitmentRule)

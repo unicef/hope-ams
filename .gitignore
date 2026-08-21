@@ -1,5 +1,6 @@
 .*
 ~*
+__pycache__/
 src/hope_ams/version.py
 coverage.xml
 node_modules
